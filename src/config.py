@@ -1,0 +1,18 @@
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+
+START_DATE = "2010-01-01"
+END_DATE = "2026-01-01"
+
+SPX_TICKER = "^GSPC"
+VIX_TICKER = "^VIX"
+
+OUTPUT_CSV = PROCESSED_DIR / "spx_vix_aligned.csv"
+
+MODEL_VARIANTS_DIR = PROJECT_ROOT / "reports" / "modeling_variants"
+BEST_VARIANT_FILE = MODEL_VARIANTS_DIR / "data" / "best_variant.txt"

@@ -1,0 +1,9 @@
+ARMA model selection:
+  selected order: (2, 0)
+  BIC: -24948.026784
+
+EGARCH_t parameters:
+  omega: -0.335733
+  alpha[1]: 0.178828
+  beta[1]: 0.963976
+  alpha + beta: 1.142804
