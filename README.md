@@ -8,10 +8,13 @@ This project focuses on regime interpretation, not trading or alpha generation. 
 
 - When is the market calm vs stressed?
 - **Calm vs stressed:** conditional volatility regimes split at low <= 0.007292 and high >= 0.009889, with mid‑regime as transitional.
+
 - How persistent are volatility shocks?
 - **Persistence:** EGARCH_t indicates high persistence (beta[1] ≈ 0.964), so volatility shocks decay slowly.
+
 - How does implied volatility (VIX) compare to realized volatility?
 - **Implied vs realized:** VIX aligns best with 10‑day realized volatility in this sample; divergence periods indicate risk pricing mismatches.
+
 - What does this mean for risk and valuation confidence?
 - **Risk meaning:** high‑vol regimes coincide with higher VIX and deeper drawdowns, implying lower valuation confidence and higher hedge costs.
 
