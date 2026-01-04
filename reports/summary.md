@@ -63,8 +63,3 @@ This project interprets volatility regimes in equity markets by modeling SPX ret
 Or run everything in one go:
 
 - `python scripts/run_all.py`
-
-## Resume-Ready Bullets
-
-- Modeled equity market volatility with ARMA–GARCH, identifying persistent volatility shocks and regime shifts across 2010–2026.
-- Compared implied (VIX) and realized volatility to interpret risk dynamics and stress sensitivity in major market regimes.
