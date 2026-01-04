@@ -26,7 +26,18 @@ def fit_garch_variant(resid: pd.Series, variant: str):
     raise ValueError(f"Unknown variant: {variant}")
 
 
-def get_best_variant(best_variant_path: Path, default: str = "GARCH") -> str:
+def get_best_variant(
+    best_variant_path: Path,
+    metrics_path: Path | None = None,
+    default: str = "GARCH",
+    mode: str = "bic",
+    tracking_metric: str = "rmse",
+) -> str:
+    if mode == "tracking" and metrics_path and metrics_path.exists():
+        metrics = pd.read_csv(metrics_path)
+        if tracking_metric in metrics.columns:
+            best_row = metrics.sort_values(tracking_metric, ascending=True).iloc[0]
+            return str(best_row["variant"])
     if not best_variant_path.exists():
         return default
     content = best_variant_path.read_text(encoding="utf-8").strip().splitlines()

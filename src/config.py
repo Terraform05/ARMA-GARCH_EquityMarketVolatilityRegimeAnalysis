@@ -16,3 +16,7 @@ OUTPUT_CSV = PROCESSED_DIR / "spx_vix_aligned.csv"
 
 MODEL_VARIANTS_DIR = PROJECT_ROOT / "reports" / "modeling_variants"
 BEST_VARIANT_FILE = MODEL_VARIANTS_DIR / "data" / "best_variant.txt"
+VARIANT_METRICS_FILE = MODEL_VARIANTS_DIR / "data" / "variant_realized_metrics.csv"
+
+# Variant selection mode: "bic" (default) or "tracking"
+VARIANT_SELECTION = "tracking" #"bic"

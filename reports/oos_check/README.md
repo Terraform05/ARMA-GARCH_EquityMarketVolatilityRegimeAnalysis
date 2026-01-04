@@ -22,6 +22,7 @@
 - Smoothness in the static line is expected because it is a single multi‑step forecast, not updated day‑by‑day.
 - The main question is directional tracking: does forecasted volatility rise and fall with realized volatility?
 - Large, persistent gaps can indicate model misspecification or scaling issues.
+- For risk monitoring, a moderate correlation with reasonable RMSE is acceptable; for trading or precise hedging, you would require materially tighter tracking.
 
 ## Figures
 

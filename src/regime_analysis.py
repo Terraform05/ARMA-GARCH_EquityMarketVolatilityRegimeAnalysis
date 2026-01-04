@@ -50,7 +50,7 @@ def run_regime_analysis(
     realized_window, realized_vol = _select_realized_window(
         merged["log_return"],
         merged["vix_close"],
-        windows=[10, 21, 63],
+        windows=[3, 10, 21, 63],
         data_dir=data_dir,
         plots_dir=plots_dir,
     )

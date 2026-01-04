@@ -92,6 +92,7 @@ def run_model_variants(
     _plot_variants_vs_realized(annualized, data, metrics_df, plots_dir)
     _plot_variant_metrics(metrics_df, plots_dir)
     _write_variant_realized_metrics(annualized, data, data_dir)
+    _plot_bic_vs_tracking(data_dir, plots_dir)
 
 
 def _plot_best_variant(vol_df: pd.DataFrame, best_variant: str, output_dir: Path) -> None:
@@ -185,3 +186,24 @@ def _write_variant_realized_metrics(
     pd.DataFrame(rows).sort_values("rmse").to_csv(
         data_dir / "variant_realized_metrics.csv", index=False
     )
+
+
+def _plot_bic_vs_tracking(data_dir: Path, plots_dir: Path) -> None:
+    metrics_path = data_dir / "variant_realized_metrics.csv"
+    bic_path = data_dir / "variant_metrics.csv"
+    if not (metrics_path.exists() and bic_path.exists()):
+        return
+    tracking = pd.read_csv(metrics_path)
+    bic = pd.read_csv(bic_path)
+    merged = tracking.merge(bic[["variant", "bic"]], on="variant", how="inner")
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.scatter(merged["bic"], merged["rmse"], color="slateblue")
+    for _, row in merged.iterrows():
+        ax.annotate(row["variant"], (row["bic"], row["rmse"]), fontsize=8, alpha=0.8)
+    ax.set_title("BIC vs Realized-Vol RMSE")
+    ax.set_xlabel("BIC (lower is better)")
+    ax.set_ylabel("RMSE (lower is better)")
+    fig.tight_layout()
+    fig.savefig(plots_dir / "bic_vs_tracking.png", dpi=150)
+    plt.close(fig)

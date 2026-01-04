@@ -2,21 +2,21 @@
 
 Model and interpret volatility regimes in equity markets by separating return dynamics from volatility dynamics, and assess how risk evolves across market conditions.
 
+## TL;DR
+
+- Builds ARMA‑GARCH volatility regimes on SPX and compares them to VIX.
+- Default model selection prioritizes realized‑vol tracking (GARCH), with BIC‑best available via config.
+- Regime labels drive a risk‑control overlay that reduces drawdowns at the cost of lower return.
+- Hedge‑cost monitoring flags when protection is cheap vs expensive.
+
 ## Project Goal
 
 This project focuses on regime interpretation, not trading or alpha generation. The core questions and answers are:
 
-- When is the market calm vs stressed?
-- **Calm vs stressed:** conditional volatility regimes split at low <= 0.007292 and high >= 0.009889, with mid‑regime as transitional.
-
-- How persistent are volatility shocks?
-- **Persistence:** EGARCH_t indicates high persistence (beta[1] ≈ 0.964), so volatility shocks decay slowly.
-
-- How does implied volatility (VIX) compare to realized volatility?
-- **Implied vs realized:** VIX aligns best with 10‑day realized volatility in this sample; divergence periods indicate risk pricing mismatches.
-
-- What does this mean for risk and valuation confidence?
-- **Risk meaning:** high‑vol regimes coincide with higher VIX and deeper drawdowns, implying lower valuation confidence and higher hedge costs.
+- **When is the market calm vs stressed?** Conditional volatility regimes split at low <= 0.006721 and high >= 0.010107, with mid‑regime as transitional.
+- **How persistent are volatility shocks?** EGARCH_t indicates high persistence (beta[1] ≈ 0.964), so volatility shocks decay slowly.
+- **How does implied volatility (VIX) compare to realized volatility?** VIX aligns best with 10‑day realized volatility in this sample; divergence periods indicate risk pricing mismatches.
+- **What does this mean for risk and valuation confidence?** High‑vol regimes coincide with higher VIX and deeper drawdowns, implying lower valuation confidence and higher hedge costs.
 
 ## Quick Start
 
@@ -83,13 +83,16 @@ The $\sqrt{252}$ factor annualizes daily volatility using the standard number of
 ![ACF and PACF](reports/diagnostics/plots/acf_pacf.png)
 
 3) **Model variants and selection**  
-   GARCH, GJR, and EGARCH variants are compared with normal vs Student‑t errors. The best model by BIC is **EGARCH_t**, indicating asymmetric volatility and heavy tails improve fit.  
+   GARCH, GJR, and EGARCH variants are compared with normal vs Student‑t errors. By default the pipeline selects the best model by realized‑vol tracking (currently **GARCH**), which aligns the model to observed volatility behavior.  
+   You can switch selection to BIC by setting `VARIANT_SELECTION = "bic"` in `src/config.py`.
    Use the charts below to see how top variants track realized volatility and how information criteria differ.
+   If your goal is interpretability or in‑sample fit, BIC is the right compass; if your goal is volatility tracking (risk monitoring), the realized‑vol metrics are the better guide.
 
 ![Model variant comparison](reports/modeling_variants/plots/variant_comparison.png)
 ![Top variants vs realized](reports/modeling_variants/plots/variant_vs_realized.png)
 ![Variant metrics](reports/modeling_variants/plots/variant_metrics.png)
 ![Best variant volatility](reports/modeling_variants/plots/best_variant_volatility.png)
+![BIC vs tracking](reports/modeling_variants/plots/bic_vs_tracking.png)
 
 Variant accuracy vs realized volatility (lower RMSE/QLIKE and higher correlation are better):
 
@@ -106,19 +109,22 @@ QLIKE (quasi‑likelihood) is a volatility‑forecast loss defined as: QLIKE = m
 
 Note: EGARCH_t wins on BIC (in‑sample fit), while GARCH has the best realized‑vol tracking metrics. This highlights the tradeoff between model fit and out‑of‑sample alignment.
 
+To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic"` in `src/config.py` before running the pipeline.
+
 4) **Modeling (mean + variance)**  
    The selected ARMA order is (2, 0) with BIC -24948.0268. The EGARCH_t variance model yields parameters: omega -0.335733, alpha[1] 0.178828, beta[1] 0.963976. This model’s conditional volatility is the core input for regimes and implied vs realized comparisons.
 
 5) **Model validation**  
    Residual autocorrelation remains at lag 20 (Ljung‑Box p = 0.000110), but squared residuals and ARCH tests are no longer significant (p ≈ 0.79 and p ≈ 0.81). This indicates variance dynamics are well captured, with remaining structure mainly in the mean.  
    Residual plots confirm the remaining structure visually.
+   Practical takeaway: the volatility model is adequate for regime labeling, but return predictability is still limited.
 
 ![Residual series](reports/validation/plots/residuals_series.png)
 ![Residual ACF](reports/validation/plots/residuals_acf.png)
 ![Residual Q-Q](reports/validation/plots/residuals_qq.png)
 
 6) **Regime interpretation**  
-   Conditional volatility is split into low/mid/high regimes using 33% and 66% quantiles (low <= 0.007292, high >= 0.009889). The realized volatility window that aligns best with VIX is 10 days.  
+   Conditional volatility is split into low/mid/high regimes using 33% and 66% quantiles (low <= 0.006721, high >= 0.010107). The realized volatility window that aligns best with VIX is 10 days.  
    The figures below show regime structure, implied vs realized comparison, and outcome summaries by regime.
 
 ![Regime scatter](reports/regime_analysis/plots/regimes.png)
@@ -129,8 +135,43 @@ Note: EGARCH_t wins on BIC (in‑sample fit), while GARCH has the best realized�
 7) **Out‑of‑sample check**  
    The holdout window is 2024‑01‑01 to 2026‑01‑01 (502 rows). Static multi‑step forecasts are not available for EGARCH, so the rolling 1‑step forecast is the primary diagnostic. Rolling OOS correlation vs realized is 0.7286 with RMSE 5.5016.  
    The rolling forecast plot below shows how well volatility is tracked in the holdout.
+   This is a monitoring check, not a trading signal: directional tracking is the key success criterion.
 
 ![OOS rolling forecast vs realized](reports/oos_check/plots/forecast_vs_realized_rolling.png)
+
+8) **Hedge‑cost monitoring**  
+   The hedge ratio (VIX / realized vol) flags expensive vs cheap hedging. Current thresholds are 1.056 (cheap) and 1.925 (expensive), with 20.00% of days cheap and 20.00% expensive. Average signal persistence is 4.6 days (cheap), 7.8 days (neutral), and 5.9 days (expensive).  
+   Practical use: use the ratio as a budgeting signal (hedge more when cheap, hedge less or seek alternatives when expensive). See `reports/hedge_monitoring/README.md` for full tables and plots.
+
+9) **Regime strategy backtest**  
+   The baseline exposure rule (low=1.0, mid=0.75, high=0.25) yields annual return 0.0618, annual vol 0.0872, Sharpe 0.7085, and max drawdown -0.1234. Buy‑and‑hold returns 0.1128 with vol 0.1738 and max drawdown -0.3392.  
+   The Sharpe‑best exposure map is low=1.0, mid=1.0, high=0.5 with Sharpe 0.7397.  
+   Interpretation: the regime strategy sacrifices return for lower drawdowns and higher risk‑adjusted performance. If your objective is pure return, buy‑and‑hold wins; if your objective is risk control, the strategy helps. See `reports/strategy_backtest/README.md` for the equity curve and variant table.
+
+Key short‑horizon visuals (last 12 months, rebased to the same start):
+- Black line: buy‑and‑hold equity curve.
+- Slate‑blue line: regime strategy equity curve.
+- Regime strip colors: green = low, amber = mid, red = high volatility.
+- Exposure values (1.0, 0.75, 0.25) are fractions of full equity exposure.
+
+![Regime strategy equity curve (last year)](reports/strategy_backtest/plots/equity_curve_last_year.png)
+
+The exposure overlay shows how the regime labels drive risk scaling: exposure rises in low‑volatility regimes and falls in high‑volatility regimes.
+
+![Exposure overlay (last year)](reports/strategy_backtest/plots/exposure_overlay_last_year.png)
+
+Full‑sample views for context:
+
+![Regime strategy equity curve](reports/strategy_backtest/plots/equity_curve.png)
+
+![Exposure overlay](reports/strategy_backtest/plots/exposure_overlay.png)
+
+## Actionable Next Steps
+
+- **Risk control:** use regime labels to scale exposure or to set hedge budgets before stress periods, then review hedge ratio signals for timing.
+- **Model choice:** choose BIC‑best (EGARCH_t) for in‑sample fit or switch to tracking‑best (GARCH) when the goal is aligning with realized volatility.
+- **Strategy tuning:** evaluate the Sharpe‑optimized exposure map from `reports/strategy_backtest/data/strategy_variants.csv`, then rerun to confirm stability.
+- **Hold vs strategy:** if you only care about total return, buy‑and‑hold wins in this sample; if drawdown control matters, the regime strategy is the better fit.
 
 ## Scope
 
@@ -149,6 +190,9 @@ Note: EGARCH_t wins on BIC (in‑sample fit), while GARCH has the best realized�
 - [Executive summary](reports/summary.md)
 - [Insights report](reports/insights.md)
 - [Modeling variants](reports/modeling_variants/README.md)
+- [Hedge cost monitoring](reports/hedge_monitoring/README.md)
+- [Regime strategy backtest](reports/strategy_backtest/README.md)
+- [Hedge + strategy overview](reports/hedge_strategy/README.md)
 
 ## Run All
 
@@ -164,3 +208,6 @@ Note: EGARCH_t wins on BIC (in‑sample fit), while GARCH has the best realized�
 - `reports/regime_analysis/README.md`
 - `reports/oos_check/README.md`
 - `reports/insights.md`
+- `reports/hedge_monitoring/README.md`
+- `reports/strategy_backtest/README.md`
+- `reports/hedge_strategy/README.md`

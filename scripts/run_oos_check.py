@@ -10,7 +10,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config import BEST_VARIANT_FILE, OUTPUT_CSV
+from src.config import (
+    BEST_VARIANT_FILE,
+    OUTPUT_CSV,
+    VARIANT_METRICS_FILE,
+    VARIANT_SELECTION,
+)
 from src.garch_utils import get_best_variant
 from src.oos_check import run_oos_check
 
@@ -23,7 +28,9 @@ def run_oos_job(
     variant: str | None = None,
 ) -> None:
     data = pd.read_csv(input_csv, parse_dates=["date"])
-    chosen_variant = variant or get_best_variant(BEST_VARIANT_FILE)
+    chosen_variant = variant or get_best_variant(
+        BEST_VARIANT_FILE, VARIANT_METRICS_FILE, mode=VARIANT_SELECTION
+    )
     run_oos_check(
         data,
         Path(output_dir),

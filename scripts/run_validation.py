@@ -11,7 +11,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config import BEST_VARIANT_FILE, OUTPUT_CSV
+from src.config import (
+    BEST_VARIANT_FILE,
+    OUTPUT_CSV,
+    VARIANT_METRICS_FILE,
+    VARIANT_SELECTION,
+)
 from src.garch_utils import fit_garch_variant, get_best_variant
 from src.modeling import select_arma_order
 from src.validation import run_validation
@@ -32,7 +37,9 @@ def run_validation_job(
     arma_result = ARIMA(returns, order=(p, 0, q)).fit()
 
     resid = arma_result.resid.dropna()
-    chosen_variant = variant or get_best_variant(BEST_VARIANT_FILE)
+    chosen_variant = variant or get_best_variant(
+        BEST_VARIANT_FILE, VARIANT_METRICS_FILE, mode=VARIANT_SELECTION
+    )
     garch_result = fit_garch_variant(resid, chosen_variant)
 
     standardized_resid = garch_result.std_resid

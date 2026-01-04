@@ -18,6 +18,8 @@ This project interprets volatility regimes in equity markets by modeling SPX ret
 - **Mean process:** ARMA order selected by BIC is (2, 0).
 - **Volatility model:** EGARCH_t is the best variant by BIC, indicating asymmetric volatility and fat tails improve fit.
 - **Regimes:** Conditional volatility thresholds (33%/66% quantiles) split into low and high regimes; high regimes align with known stress windows. The 10-day realized vol window provides the strongest alignment with VIX in-sample.
+- **Hedge monitoring:** Hedge ratio thresholds are 1.056 (cheap) and 1.925 (expensive), with 20.00% cheap / 59.99% neutral / 20.00% expensive and average signal lengths of 4.6/7.8/5.9 days.
+- **Strategy backtest:** Regime strategy returns 0.0618 with vol 0.0872, Sharpe 0.7085, and max drawdown -0.1234 vs buy‑and‑hold return 0.1128 with vol 0.1738 and max drawdown -0.3392.
 
 ## Validation Summary
 
@@ -39,18 +41,24 @@ This project interprets volatility regimes in equity markets by modeling SPX ret
 - Modeling: `reports/modeling/README.md`, `reports/modeling/data/conditional_volatility.csv`, `reports/modeling/data/summary.txt`
 - Modeling variants: `reports/modeling_variants/data/variant_metrics.csv`, `reports/modeling_variants/data/best_variant.txt`, `reports/modeling_variants/plots/variant_comparison.png`, `reports/modeling_variants/plots/variant_vs_realized.png`, `reports/modeling_variants/plots/variant_metrics.png`
 - Validation: `reports/validation/README.md`, `reports/validation/plots/residuals_acf.png`, `reports/validation/plots/residuals_qq.png`
-- Regime analysis: `reports/regime_analysis/README.md`, `reports/regime_analysis/plots/vix_vs_realized.png`, `reports/regime_analysis/plots/realized_window_metrics.png`
+- Regime analysis: `reports/regime_analysis/README.md`, `reports/regime_analysis/plots/vix_vs_realized.png`, `reports/regime_analysis/plots/realized_window_metrics.png`, `reports/regime_analysis/plots/regime_outcomes.png`
 - OOS check: `reports/oos_check/README.md`, `reports/oos_check/plots/forecast_vs_realized_rolling.png`, `reports/oos_check/data/oos_metrics.csv`
 - Insights: `reports/insights.md`
+- Hedge monitoring: `reports/hedge_monitoring/README.md`
+- Strategy backtest: `reports/strategy_backtest/README.md`
+ - Hedge + strategy overview: `reports/hedge_strategy/README.md`
 
 ## How To Reproduce
 
 1. `python scripts/prepare_data.py`
 2. `python scripts/run_diagnostics.py`
-3. `python scripts/run_modeling.py`
-4. `python scripts/run_validation.py`
-5. `python scripts/run_regime_analysis.py`
-6. `python scripts/run_oos_check.py`
+3. `python scripts/run_model_variants.py`
+4. `python scripts/run_modeling.py`
+5. `python scripts/run_validation.py`
+6. `python scripts/run_regime_analysis.py`
+7. `python scripts/run_oos_check.py`
+8. `python scripts/run_hedge_monitoring.py`
+9. `python scripts/run_strategy_backtest.py`
 
 Or run everything in one go:
 

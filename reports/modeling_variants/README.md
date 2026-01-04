@@ -11,6 +11,9 @@
 - EGARCH_t suggests asymmetric volatility and heavy tails improve fit.
 - Variant comparisons help validate model selection beyond the baseline GARCH.
 - QLIKE (quasi-likelihood) evaluates volatility forecasts using realized variance; lower values are better and it is robust to measurement noise.
+- Set `VARIANT_SELECTION = "tracking"` in `src/config.py` to select the variant with the best realized‑vol tracking metrics.
+- AIC/BIC measure fit to returns and residual structure, not alignment to a realized‑vol proxy; tracking metrics answer a different question (how well the model matches observed volatility levels).
+- Decision rule: prefer BIC for in‑sample explanatory fit, prefer tracking metrics when the goal is risk monitoring or hedge‑cost alignment.
 
 ## Variant Metrics (vs Realized Volatility)
 
@@ -42,3 +45,7 @@ These bar charts show model selection criteria; more negative AIC/BIC values are
 This plot shows the preferred model’s conditional volatility path in annualized percent terms.
 
 ![Best variant volatility](plots/best_variant_volatility.png)
+
+This scatter compares in-sample fit (BIC) to realized-vol tracking (RMSE) so you can see the tradeoff directly.
+
+![BIC vs tracking](plots/bic_vs_tracking.png)
