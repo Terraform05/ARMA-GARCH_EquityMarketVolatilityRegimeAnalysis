@@ -8,17 +8,133 @@ Model and interpret volatility regimes in equity markets by separating return dy
 - Default model selection prioritizes realized‑vol tracking (GARCH), with BIC‑best available via config.
 - Regime labels drive a risk‑control overlay that reduces drawdowns at the cost of lower return.
 - Hedge‑cost monitoring flags when protection is cheap vs expensive.
+- Backtest: regime strategy lowers drawdowns; see `reports/strategy_backtest/README.md`.
 
-- **The regime strategy sacrifices return for lower drawdowns and higher risk‑adjusted performance. If your objective is pure return, buy‑and‑hold wins; if your objective is risk control, the strategy helps.** See `reports/strategy_backtest/README.md` for the equity curve and variant table.
+## Project Objective (Economic Lens)
 
-## Project Goal
-
-This project focuses on regime interpretation, not trading or alpha generation. The core questions and answers are:
+This project focuses on regime interpretation, not trading or alpha generation. It aims to explain *market behavior* (stability vs transition) by identifying volatility regimes and showing how regime conviction (or lack thereof) drives realized volatility and risk repricing. The core questions and answers are:
 
 - **When is the market calm vs stressed?** Conditional volatility regimes split at low <= 0.007292 and high >= 0.009889, with mid‑regime as transitional.
 - **How persistent are volatility shocks?** GARCH persistence is high (alpha + beta ≈ 0.980), so volatility shocks decay slowly.
 - **How does implied volatility (VIX) compare to realized volatility?** VIX aligns best with 10‑day realized volatility in this sample; divergence periods indicate risk pricing mismatches.
 - **What does this mean for risk and valuation confidence?** High‑vol regimes coincide with higher VIX and deeper drawdowns, implying lower valuation confidence and higher hedge costs.
+
+## Conceptual Framework: What Is a Market Regime?
+
+A market regime is a statistically persistent state of market behavior characterized by distinct volatility dynamics. Regimes are descriptive, not predictive: they summarize how markets behave over time rather than forecast specific price moves.
+
+Key distinctions:
+- Regimes describe risk environments, not direction.
+- Regimes persist but can transition abruptly.
+- Volatility is regime‑dependent, not constant.
+- Regimes are not predictions; they are statistical states of behavior.
+- Volatility clustering means large moves tend to be followed by large moves (and small by small), which is why regimes persist.
+
+## Data & Scope
+
+- Assets: S&P 500 Index (^GSPC), VIX Index (^VIX)
+- Frequency: Daily (EOD)
+- Sample period: 2010‑01‑01 to 2026‑01‑01
+- Transformations: log returns and squared returns
+- Output: aligned dataset for return modeling and volatility estimation
+
+## Methodology Overview
+
+The analysis follows a structured pipeline designed to isolate volatility behavior:
+
+1) **Return modeling (ARMA)**  
+   ARMA removes short‑run autocorrelation in returns and isolates the unpredictable component.
+
+2) **Volatility modeling (GARCH)**  
+   GARCH estimates conditional variance and captures volatility clustering and persistence.
+
+3) **Regime identification**  
+   Volatility dynamics are segmented into regimes based on conditional variance behavior.
+
+4) **Regime exposure measurement**  
+   A regime strip quantifies the strength of market exposure to each volatility regime at a given point in time.
+
+Schematic (conceptual flow):
+
+`returns → ARMA → residuals → GARCH volatility → regimes/exposure → volatility behavior vs VIX`
+
+## Why ARMA + GARCH?
+
+ARMA and GARCH are selected because they target two distinct properties of financial returns:
+
+- ARMA removes predictable structure in returns.
+- GARCH models time‑varying volatility and volatility persistence.
+
+Together they isolate regime‑driven variance behavior, allowing regime analysis to focus on volatility rather than price direction.
+
+## Interpreting Regime Exposure (Core Insight)
+
+Regime labels alone are insufficient. The key variable is regime exposure — the degree to which market behavior is concentrated in a single regime versus dispersed across multiple regimes.
+
+High regime exposure:
+- Strong market consensus
+- Capital anchored to a dominant volatility regime
+- Stable risk pricing
+- Typically associated with lower realized volatility
+
+Low regime exposure:
+- Weak regime conviction
+- Uncertainty about the prevailing risk environment
+- Continuous repricing of risk
+- Typically associated with higher realized volatility, especially during transitions
+
+Why transitions matter more than steady states:
+- Transitions are where exposure is weakest and volatility spikes.
+- Stable regimes show compressed volatility and slower repricing.
+
+## Volatility as an Outcome of Uncertainty
+
+Volatility is not random noise in this framework. It is the observable outcome of uncertainty about regime persistence.
+
+- Low volatility reflects confidence and consensus.
+- High volatility reflects disagreement and uncertainty.
+- Volatility clusters when regime conviction breaks down.
+
+## Relationship Between Model‑Based Volatility and VIX
+
+Model‑implied volatility and VIX play complementary roles:
+
+- GARCH volatility reflects realized and conditional variance.
+- VIX reflects market‑implied expectations of future volatility.
+
+Divergences often occur during regime transitions, when expectations adjust faster than realized outcomes (or vice versa). In practice, VIX can lead when markets reprice risk ahead of realized moves, while GARCH can lead when realized variance rises before options reprice. These gaps are informative about risk pricing and hedging costs.
+
+## Transitional vs Stable Market States
+
+Volatility behavior differs sharply between stable and transitional market states:
+
+- **Stable regimes:** high exposure, predictable risk pricing, volatility compression
+- **Transitional regimes:** low exposure, rapid repricing, volatility spikes
+
+Volatility is highest during transitions, not within stable regimes themselves.
+
+## Practical Applications
+
+This framework can be used for:
+
+- Risk management and stress testing
+- Volatility targeting and leverage control
+- Identifying volatility selling vs buying environments
+- Detecting early signs of regime instability
+
+## Limitations
+
+- Regimes are backward‑looking.
+- GARCH captures conditional variance, not tail risk.
+- Structural breaks can disrupt regime persistence.
+- Regime identification depends on model assumptions.
+- What breaks the model: sudden policy shifts, market microstructure changes, and regime durations that are too short for the chosen window can invalidate the regime signal.
+
+## Key Takeaway
+
+Volatility is lowest when markets are confident in their regime and highest when regime conviction breaks down.
+
+This project reframes volatility as a signal of market uncertainty and regime transition, rather than random fluctuation.
 
 ## Quick Start
 
@@ -72,7 +188,7 @@ $$
 \sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2
 $$
 
-Key variables and parameters:
+Key variables:
 - $\sigma_t^2$ is the conditional variance at time $t$.
 - $\epsilon_{t-1}$ is yesterday’s return shock.
 - $\omega$ is the long‑run variance level.
