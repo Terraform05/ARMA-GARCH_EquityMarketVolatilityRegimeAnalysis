@@ -9,7 +9,7 @@ Model and interpret volatility regimes in equity markets by separating return dy
 - Regime labels drive a risk‑control overlay that reduces drawdowns at the cost of lower return.
 - Hedge‑cost monitoring flags when protection is cheap vs expensive.
 
-- **the regime strategy sacrifices return for lower drawdowns and higher risk‑adjusted performance. If your objective is pure return, buy‑and‑hold wins; if your objective is risk control, the strategy helps.** See `reports/strategy_backtest/README.md` for the equity curve and variant table.
+- **The regime strategy sacrifices return for lower drawdowns and higher risk‑adjusted performance. If your objective is pure return, buy‑and‑hold wins; if your objective is risk control, the strategy helps.** See `reports/strategy_backtest/README.md` for the equity curve and variant table.
 
 ## Project Goal
 
