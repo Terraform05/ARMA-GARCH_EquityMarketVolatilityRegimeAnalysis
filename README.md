@@ -44,11 +44,25 @@ $$
 r_t = \log\left(\frac{P_t}{P_{t-1}}\right)
 $$
 
+Key variables:
+- $r_t$ is the log return on day $t$.
+- $P_t$ and $P_{t-1}$ are the adjusted close prices on days $t$ and $t-1$.
+- $t$ indexes trading days.
+
 The mean process is modeled with ARMA $(p, q)$, which allows returns to depend on their own past values (AR terms) and on past shocks (MA terms). This captures short‑run autocorrelation:
 
 $$
 r_t = \mu + \sum_{i=1}^{p} \phi_i r_{t-i} + \sum_{j=1}^{q} \theta_j \epsilon_{t-j} + \epsilon_t
 $$
+
+Key variables:
+- $\mu$ is the mean return.
+- $\phi_i$ are AR coefficients on past returns $r_{t-i}$.
+- $\theta_j$ are MA coefficients on past shocks $\epsilon_{t-j}$.
+- $\epsilon_t$ is the return shock (innovation) at time $t$.
+- $p$ and $q$ are the AR and MA orders.
+
+ARCH (Autoregressive Conditional Heteroskedasticity) models volatility as a function of past squared shocks; in other words, big moves tend to be followed by bigger variance. GARCH (Generalized ARCH) extends this by also including the previous day’s variance, which captures persistence in volatility over time.
 
 The variance process is modeled with GARCH(1,1), which allows volatility to change over time and respond to recent shocks. The conditional variance $\sigma_t^2$ depends on yesterday’s squared shock and yesterday’s variance:
 
@@ -56,7 +70,9 @@ $$
 \sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2
 $$
 
-Key parameters:
+Key variables and parameters:
+- $\sigma_t^2$ is the conditional variance at time $t$.
+- $\epsilon_{t-1}$ is yesterday’s return shock.
 - $\omega$ is the long‑run variance level.
 - $\alpha$ controls how strongly volatility reacts to new shocks.
 - $\beta$ controls how persistent volatility is.
@@ -67,6 +83,12 @@ To compare model output with VIX, we compute a rolling realized volatility proxy
 $$
 \text{RV}_{t,w} = \sqrt{252} \times \text{StdDev}(r_{t-w+1:t}) \times 100
 $$
+
+Key variables:
+- $\text{RV}_{t,w}$ is realized volatility at time $t$ using window length $w$.
+- $w$ is the lookback window in trading days.
+- $\text{StdDev}(r_{t-w+1:t})$ is the standard deviation of returns over the window.
+- $\sqrt{252}$ annualizes daily volatility; $\times 100$ converts to percent.
 
 The $\sqrt{252}$ factor annualizes daily volatility using the standard number of trading days per year, and the $\times 100$ converts it to percent to match VIX units.
 
