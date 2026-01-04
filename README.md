@@ -60,12 +60,18 @@ Schematic (conceptual flow):
 
 ## Why ARMA + GARCH?
 
-ARMA and GARCH are selected because they target two distinct properties of financial returns:
+ARMA and GARCH are selected because they target two distinct properties of financial returns and keep “signal” separate from “risk”:
 
-- ARMA removes predictable structure in returns.
-- GARCH models time‑varying volatility and volatility persistence.
+**ARMA (mean):** removes short‑run predictable structure in returns (small autocorrelation, microstructure effects, brief mean reversion). This yields *true shocks*—the part of returns not explained by the past.
 
-Together they isolate regime‑driven variance behavior, allowing regime analysis to focus on volatility rather than price direction.
+- **To measure unexpected moves (risk), we first remove expected moves using ARMA.**
+
+**GARCH (variance):** models time‑varying volatility and persistence using those shocks, so volatility responds to *unexpected* news rather than predictable patterns.
+
+- **To understand how risk evolves over time, we model how the size of unexpected moves clusters and persists using GARCH.**
+
+
+If ARMA is skipped, predictable structure can leak into the volatility model and inflate risk estimates. Together, ARMA + GARCH isolate regime‑driven variance behavior so regime analysis focuses on volatility rather than price direction.
 
 ## Interpreting Regime Exposure (Core Insight)
 
