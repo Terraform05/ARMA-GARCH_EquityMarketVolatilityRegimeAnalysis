@@ -16,22 +16,22 @@ This project interprets volatility regimes in equity markets by modeling SPX ret
 - **Stationarity:** ADF on log returns strongly rejects a unit root (p < 0.001).
 - **Volatility clustering:** ARCH test is highly significant (p < 0.001).
 - **Mean process:** ARMA order selected by BIC is (2, 0).
-- **Volatility model:** EGARCH_t is the best variant by BIC, indicating asymmetric volatility and fat tails improve fit.
+- **Volatility model:** GARCH is selected by realized‑vol tracking (alpha + beta = 0.9800), indicating persistent volatility with strong clustering.
 - **Regimes:** Conditional volatility thresholds (33%/66% quantiles) split into low and high regimes; high regimes align with known stress windows. The 10-day realized vol window provides the strongest alignment with VIX in-sample.
 - **Hedge monitoring:** Hedge ratio thresholds are 1.056 (cheap) and 1.925 (expensive), with 20.00% cheap / 59.99% neutral / 20.00% expensive and average signal lengths of 4.6/7.8/5.9 days.
 - **Strategy backtest:** Regime strategy returns 0.0618 with vol 0.0872, Sharpe 0.7085, and max drawdown -0.1234 vs buy‑and‑hold return 0.1128 with vol 0.1738 and max drawdown -0.3392.
 
 ## Validation Summary
 
-- Ljung-Box on standardized residuals remains significant (p ≈ 0.00011).
-- Ljung-Box on squared residuals is not significant (p ≈ 0.79).
-- ARCH test on standardized residuals is not significant (p ≈ 0.81).
-- Interpretation: variance dynamics are well captured; remaining dependence is mainly in the mean.
+- Ljung-Box on standardized residuals remains significant (p ≈ 0.000011).
+- Ljung-Box on squared residuals remains significant (p ≈ 0.008656).
+- ARCH test on standardized residuals remains significant (p ≈ 0.025483).
+- Interpretation: variance dynamics remain partially unmodeled; use regimes as risk indicators rather than precision forecasts.
 
 ## Out-of-Sample Check
 
 - Holdout window: 2024-01-01 to 2026-01-01 (502 rows).
-- Static multi-step forecast is unavailable for EGARCH variants.
+- Static and rolling forecasts are both available for GARCH.
 - Rolling 1-step forecasts provide the realistic comparison against realized volatility.
 
 ## Step Outputs

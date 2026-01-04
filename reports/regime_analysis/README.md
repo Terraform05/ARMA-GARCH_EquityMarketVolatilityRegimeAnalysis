@@ -2,8 +2,8 @@
 
 ## Key Results
 
-- Low regime threshold (<=): 0.006721
-- High regime threshold (>=): 0.010107
+- Low regime threshold (<=): 0.007292
+- High regime threshold (>=): 0.009889
 - Realized volatility window: 10-day (annualized), selected by highest correlation to VIX
 
 ## Interpretation

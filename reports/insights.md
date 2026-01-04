@@ -4,14 +4,15 @@
 
 - Variants compared: GARCH, GJR, EGARCH with normal vs Student‑t errors.
 - Best by BIC: **EGARCH_t** (see `reports/modeling_variants/data/variant_metrics.csv`).
-- Interpretation: allowing asymmetric volatility and fat tails improves fit relative to vanilla GARCH.
+- Best by tracking: **GARCH** (see `reports/modeling_variants/data/variant_realized_metrics.csv`).
+- Interpretation: asymmetric volatility and fat tails improve in‑sample fit, but GARCH tracks realized volatility more closely in this sample.
 
 ## Out-of-Sample Evaluation
 
 From `reports/oos_check/data/oos_metrics.csv`:
 
-- Static forecast vs realized: not available for EGARCH multi‑step horizon
-- Rolling 1‑step vs realized: corr = 0.7286, RMSE = 5.5016
+- Static forecast vs realized: corr = 0.1696, RMSE = 8.2674
+- Rolling 1‑step vs realized: corr = 0.9193, RMSE = 3.2394
 
 Takeaway: rolling forecasts track realized volatility much better than the static multi‑step path.
 

@@ -13,8 +13,8 @@ Model and interpret volatility regimes in equity markets by separating return dy
 
 This project focuses on regime interpretation, not trading or alpha generation. The core questions and answers are:
 
-- **When is the market calm vs stressed?** Conditional volatility regimes split at low <= 0.006721 and high >= 0.010107, with mid‑regime as transitional.
-- **How persistent are volatility shocks?** EGARCH_t indicates high persistence (beta[1] ≈ 0.964), so volatility shocks decay slowly.
+- **When is the market calm vs stressed?** Conditional volatility regimes split at low <= 0.007292 and high >= 0.009889, with mid‑regime as transitional.
+- **How persistent are volatility shocks?** GARCH persistence is high (alpha + beta ≈ 0.980), so volatility shocks decay slowly.
 - **How does implied volatility (VIX) compare to realized volatility?** VIX aligns best with 10‑day realized volatility in this sample; divergence periods indicate risk pricing mismatches.
 - **What does this mean for risk and valuation confidence?** High‑vol regimes coincide with higher VIX and deeper drawdowns, implying lower valuation confidence and higher hedge costs.
 
@@ -112,10 +112,10 @@ Note: EGARCH_t wins on BIC (in‑sample fit), while GARCH has the best realized�
 To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic"` in `src/config.py` before running the pipeline.
 
 4) **Modeling (mean + variance)**  
-   The selected ARMA order is (2, 0) with BIC -24948.0268. The EGARCH_t variance model yields parameters: omega -0.335733, alpha[1] 0.178828, beta[1] 0.963976. This model’s conditional volatility is the core input for regimes and implied vs realized comparisons.
+   The selected ARMA order is (2, 0) with BIC -24948.0268. The GARCH variance model yields parameters: omega 0.000002, alpha[1] 0.100000, beta[1] 0.880000 (alpha + beta = 0.980000). This model’s conditional volatility is the core input for regimes and implied vs realized comparisons.
 
 5) **Model validation**  
-   Residual autocorrelation remains at lag 20 (Ljung‑Box p = 0.000110), but squared residuals and ARCH tests are no longer significant (p ≈ 0.79 and p ≈ 0.81). This indicates variance dynamics are well captured, with remaining structure mainly in the mean.  
+   Residual autocorrelation remains at lag 20 (Ljung‑Box p = 0.000011), and squared residuals and ARCH tests are still significant (p ≈ 0.0087 and p ≈ 0.0255). This indicates remaining variance structure despite the model fit.  
    Residual plots confirm the remaining structure visually.
    Practical takeaway: the volatility model is adequate for regime labeling, but return predictability is still limited.
 
@@ -124,7 +124,7 @@ To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic
 ![Residual Q-Q](reports/validation/plots/residuals_qq.png)
 
 6) **Regime interpretation**  
-   Conditional volatility is split into low/mid/high regimes using 33% and 66% quantiles (low <= 0.006721, high >= 0.010107). The realized volatility window that aligns best with VIX is 10 days.  
+   Conditional volatility is split into low/mid/high regimes using 33% and 66% quantiles (low <= 0.007292, high >= 0.009889). The realized volatility window that aligns best with VIX is 10 days.  
    The figures below show regime structure, implied vs realized comparison, and outcome summaries by regime.
 
 ![Regime scatter](reports/regime_analysis/plots/regimes.png)
@@ -133,7 +133,7 @@ To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic
 ![Regime outcomes](reports/regime_analysis/plots/regime_outcomes.png)
 
 7) **Out‑of‑sample check**  
-   The holdout window is 2024‑01‑01 to 2026‑01‑01 (502 rows). Static multi‑step forecasts are not available for EGARCH, so the rolling 1‑step forecast is the primary diagnostic. Rolling OOS correlation vs realized is 0.7286 with RMSE 5.5016.  
+   The holdout window is 2024‑01‑01 to 2026‑01‑01 (502 rows). With GARCH selected, both static and rolling forecasts are available; rolling OOS correlation vs realized is 0.9193 with RMSE 3.2394 (static: corr 0.1696, RMSE 8.2674).  
    The rolling forecast plot below shows how well volatility is tracked in the holdout.
    This is a monitoring check, not a trading signal: directional tracking is the key success criterion.
 
@@ -169,7 +169,7 @@ Full‑sample views for context:
 ## Actionable Next Steps
 
 - **Risk control:** use regime labels to scale exposure or to set hedge budgets before stress periods, then review hedge ratio signals for timing.
-- **Model choice:** choose BIC‑best (EGARCH_t) for in‑sample fit or switch to tracking‑best (GARCH) when the goal is aligning with realized volatility.
+- **Model choice:** choose BIC‑best (EGARCH_t) for in‑sample fit or tracking‑best (GARCH) when the goal is aligning with realized volatility.
 - **Strategy tuning:** evaluate the Sharpe‑optimized exposure map from `reports/strategy_backtest/data/strategy_variants.csv`, then rerun to confirm stability.
 - **Hold vs strategy:** if you only care about total return, buy‑and‑hold wins in this sample; if drawdown control matters, the regime strategy is the better fit.
 
