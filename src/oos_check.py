@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
@@ -176,6 +177,10 @@ def _plot_oos(
         ax.set_title(title)
     ax.set_ylabel("Annualized Volatility (%)")
     ax.set_xlabel("Date")
+    locator = mdates.AutoDateLocator(minticks=6, maxticks=12)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))
+    fig.autofmt_xdate(rotation=30, ha="right")
     ax.legend(loc="upper right", frameon=False)
     fig.tight_layout()
     fig.savefig(output_dir / f"forecast_vs_realized{suffix}.png", dpi=150)

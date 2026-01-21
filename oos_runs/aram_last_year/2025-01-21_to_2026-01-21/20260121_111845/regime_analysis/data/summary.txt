@@ -1,0 +1,6 @@
+Regime thresholds based on conditional volatility quantiles:
+  low <= 0.007564
+  high >= 0.009332
+
+Realized volatility window selection:
+  window (days): 10
