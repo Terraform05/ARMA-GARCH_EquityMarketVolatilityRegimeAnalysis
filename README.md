@@ -15,6 +15,7 @@ Model and interpret volatility regimes in equity markets by separating return dy
 This report summarizes a last-year out of sample run that trains on the prior year and evaluates the 2025-01-21 to 2026-01-21 window. The April 2025 tariff shock and subsequent policy reversals and fast headline shifts dominate the volatility regime, driving a sharp spike in conditional variance, a high-vol regime cluster, and a clear separation between implied and realized volatility. Rolling forecasts track the shock faster than static forecasts, while regime-based exposure cuts reduce drawdown depth at the cost of lower total return versus buy-and-hold. Event chronologies tie each key plot to the policy and macro catalysts that shaped the risk environment.
 
 Full report: `oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md`
+Comparison report (train 1y vs 5y): `oos_runs/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md`
 
 ## Project Objective (Economic Lens)
 
