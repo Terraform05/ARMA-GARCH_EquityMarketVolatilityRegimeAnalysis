@@ -84,6 +84,7 @@ Holdout metrics:
 - `plots/exposure_overlay_last_year.png` for last-year exposure zoom
 - `plots/rolling_cagr.png` for rolling CAGR (1Y and 3Y)
 - `plots/rolling_drawdown.png` for rolling max drawdown (1Y and 3Y)
+- `plots/rolling_alpha_beta.png` for rolling alpha/beta (1Y) vs benchmark
 - `plots/turnover_hist.png` for turnover distribution
 - `plots/cost_sensitivity.png` for net return and Sharpe vs cost assumptions
 
@@ -121,6 +122,7 @@ Source: `reports/strategy_layered/data/summary.txt` and
 | Strategy | Annual return | Annual vol | Sharpe | Max drawdown | Excess return vs benchmark |
 | --- | --- | --- | --- | --- | --- |
 | Layered strategy | 0.1825 | 0.0951 | 1.9205 | -0.0903 | +0.0698 |
+| Layered strategy (net, 5 bps) | 0.1726 | 0.0950 | 1.8168 | -0.0908 | +0.0599 |
 | Regime-only strategy | 0.0618 | 0.0872 | 0.7085 | -0.1234 | -0.0510 |
 | Buy-and-hold | 0.1128 | 0.1738 | 0.6486 | -0.3392 | 0.0000 |
 
@@ -187,6 +189,78 @@ What changes:
 - Regime bands should cap exposure during high volatility windows.
 - If exposure oscillates too frequently, the trend threshold may be too low.
 
+## Alpha/Beta Summary (Full Sample)
+
+From `reports/strategy_layered/data/summary.txt`:
+
+- Layered alpha (annual): 0.1290
+- Layered beta: 0.4543
+- Layered alpha (net, 5 bps): 0.1191
+- Layered beta (net): 0.4544
+- Regime-only alpha (annual): 0.0119
+- Regime-only beta: 0.4195
+
+Interpretation:
+- Layered alpha is materially positive, suggesting returns are not just a
+  leveraged beta bet.
+- Beta stays below 0.5, indicating a lower market exposure profile.
+
+## Plot Interpretations (Detailed)
+
+### `plots/equity_curve_compare.png`
+- The layered line pulls away from both the benchmark and the regime-only
+  strategy after 2016 and remains above them through the end of the sample.
+- Regime-only remains below buy-and-hold most of the time, confirming it is a
+  risk-control overlay, not a return engine.
+- The long-run gap between layered and benchmark indicates persistent
+  outperformance, not a single short-lived burst.
+
+### `plots/equity_curve_compare_last_year.png`
+- In the 2025 shock window, buy-and-hold draws down sharply; layered remains
+  above benchmark and recovers faster.
+- Regime-only stays below the benchmark after the drawdown, reflecting its
+  conservative exposure settings.
+- Layered maintains a higher terminal level, matching the sweep goal.
+
+### `plots/rolling_cagr.png`
+- 1Y rolling CAGR: layered typically stays above benchmark and regime-only,
+  with fewer deep negative swings during drawdowns (notably 2020 and 2022).
+- 3Y rolling CAGR: layered sits consistently above benchmark across most of the
+  sample, while regime-only runs the lowest.
+- The persistence of the 3Y advantage suggests the edge is not concentrated in
+  a single year.
+
+### `plots/rolling_drawdown.png`
+- 1Y rolling max drawdown: benchmark reaches deep drawdowns (near -0.35 around
+  2020), while layered remains much shallower (generally around -0.05 to -0.12).
+- 3Y rolling max drawdown: layered consistently exhibits the smallest drawdowns,
+  with regime-only in the middle and benchmark worst.
+- This confirms the trend layer adds return without giving up drawdown control.
+
+### `plots/rolling_alpha_beta.png`
+- Rolling alpha for layered is positive most of the time and peaks around 2020,
+  indicating strong risk-adjusted outperformance during regime transitions.
+- Regime-only alpha oscillates around zero and is often negative, consistent
+  with its lower-return profile.
+- Rolling beta for both strategies stays below 1.0; layered generally sits
+  around 0.4-0.7, with regime-only spiking toward 1.0 during low-vol stretches.
+
+### `plots/cost_sensitivity.png`
+- Net annual return declines roughly linearly as cost bps increase, indicating
+  turnover is moderate and cost effects are predictable.
+- At 5 bps, net annual return falls from 0.1825 to 0.1726 and Sharpe drops from
+  1.9205 to 1.8168.
+- At 10 bps, the strategy still maintains strong net returns, but the margin
+  vs buy-and-hold narrows meaningfully.
+
+### `plots/turnover_hist.png`
+- Most days show near-zero turnover, implying exposure is often stable despite
+  daily rebalancing.
+- Distinct spikes around ~0.2-0.3 reflect step changes in the exposure matrix
+  when trend or regime states flip.
+- Occasional larger jumps (~0.6) reflect switching from high-exposure to
+  defensive states.
+
 ## State-Level Diagnostics
 
 From `reports/strategy_layered/data/state_performance.csv`:
@@ -205,6 +279,16 @@ From `reports/strategy_layered/data/exposure_stats.csv`:
 
 This confirms the strategy is usually below full exposure but can exceed 1.0
 in strong uptrends.
+
+## Alpha/Beta Context
+
+Alpha and beta are computed using simple returns (not log returns):
+
+- Alpha (annualized) = intercept of strategy excess returns vs benchmark.
+- Beta = slope of strategy returns vs benchmark.
+
+Rolling alpha/beta helps verify that outperformance is not isolated to a single
+short window. See `plots/rolling_alpha_beta.png`.
 
 ## Additional Graphs and Overlays to Consider
 

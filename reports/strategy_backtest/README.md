@@ -36,6 +36,7 @@ The strategy uses the regime labels generated from the selected ARMA‑GARCH var
 - `plots/exposure_overlay.png` for exposure levels with regime shading
 - `plots/equity_curve_last_year.png` for the last-year equity curve zoom
 - `plots/exposure_overlay_last_year.png` for the last-year exposure/regime zoom
+- `plots/rolling_alpha_beta.png` for rolling 1Y alpha/beta vs benchmark
 
 ## Interpretation
 
@@ -43,6 +44,20 @@ The strategy uses the regime labels generated from the selected ARMA‑GARCH var
 - This strategy underperforms buy‑and‑hold on raw return but improves drawdown and volatility, so it is a risk‑control tool.
 - Use `data/strategy_variants.csv` to see whether alternative exposure maps improve Sharpe without materially hurting returns.
 - If the objective is return maximization, buy‑and‑hold is the correct benchmark; if the objective is capital preservation and smoother risk, the regime overlay is the better fit.
+- Alpha/Beta metrics in `data/summary.txt` show how much of the return is explained by market exposure.
+
+## Alpha/Beta Interpretation
+
+From `reports/strategy_backtest/data/summary.txt`:
+
+- Alpha (annual): 0.0119
+- Beta: 0.4195
+
+Interpretation:
+- Alpha is slightly positive but small, consistent with a risk-control overlay.
+- Beta below 0.5 confirms the strategy runs materially less market exposure.
+- Rolling alpha/beta in `plots/rolling_alpha_beta.png` shows alpha hovering near
+  zero with occasional spikes; beta rises toward 1.0 in extended low-vol regimes.
 
 ## Summary Table
 

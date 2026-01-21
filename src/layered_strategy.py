@@ -24,6 +24,13 @@ class LayeredStrategyResults:
     max_drawdown: float
 
 
+@dataclass
+class AlphaBeta:
+    alpha_daily: float
+    alpha_annual: float
+    beta: float
+
+
 def _ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
@@ -104,6 +111,9 @@ def build_layered_frame(
     frame["strategy_log_return_net"] = (
         frame["strategy_log_return"] - frame["cost_rate"]
     )
+    frame["benchmark_return"] = np.exp(frame["log_return"]) - 1.0
+    frame["strategy_return"] = np.exp(frame["strategy_log_return"]) - 1.0
+    frame["strategy_return_net"] = np.exp(frame["strategy_log_return_net"]) - 1.0
     frame["benchmark_equity"] = np.exp(frame["log_return"].cumsum())
     frame["strategy_equity"] = np.exp(frame["strategy_log_return"].cumsum())
     frame["strategy_equity_net"] = np.exp(
@@ -167,13 +177,19 @@ def run_layered_strategy_backtest(
         cost_bps=cost_bps,
     )
 
+    _apply_regime_only(frame)
     stats = _compute_stats(frame["strategy_log_return"])
     stats_net = _compute_stats(frame["strategy_log_return_net"])
     benchmark_stats = _compute_stats(frame["log_return"])
-    _apply_regime_only(frame)
-    avg_turnover = float(frame["turnover"].mean())
-    annual_turnover = avg_turnover * 252
-    annual_cost_drag = annual_turnover * (cost_bps / 10000.0)
+    alpha_beta = _compute_alpha_beta(
+        frame["strategy_return"], frame["benchmark_return"]
+    )
+    alpha_beta_net = _compute_alpha_beta(
+        frame["strategy_return_net"], frame["benchmark_return"]
+    )
+    alpha_beta_regime = _compute_alpha_beta(
+        frame["regime_return"], frame["benchmark_return"]
+    )
     avg_turnover = float(frame["turnover"].mean())
     annual_turnover = avg_turnover * 252
     annual_cost_drag = annual_turnover * (cost_bps / 10000.0)
@@ -183,6 +199,9 @@ def run_layered_strategy_backtest(
         stats=stats,
         stats_net=stats_net,
         benchmark_stats=benchmark_stats,
+        alpha_beta=alpha_beta,
+        alpha_beta_net=alpha_beta_net,
+        alpha_beta_regime=alpha_beta_regime,
         trend_window=trend_window,
         trend_z_window=trend_z_window,
         trend_threshold=trend_threshold,
@@ -220,6 +239,10 @@ def run_layered_strategy_backtest(
             "drawdown",
             "drawdown_net",
             "regime_drawdown",
+            "strategy_return",
+            "strategy_return_net",
+            "benchmark_return",
+            "regime_return",
         ]
     ].to_csv(data_dir / "layered_strategy_equity.csv", index=False)
 
@@ -248,6 +271,7 @@ def run_layered_strategy_backtest(
     _plot_equity_curve_compare(_last_year_slice(frame), plots_dir, suffix="_last_year")
     _plot_rolling_cagr(frame, plots_dir)
     _plot_rolling_drawdown(frame, plots_dir)
+    _plot_rolling_alpha_beta(frame, plots_dir)
     _plot_exposure_overlay(frame, plots_dir, suffix="")
     _plot_exposure_overlay(_last_year_slice(frame), plots_dir, suffix="_last_year")
     _plot_turnover_hist(frame, plots_dir)
@@ -389,12 +413,40 @@ def _compute_stats(strategy_log_returns: pd.Series) -> LayeredStrategyResults:
     )
 
 
+def _compute_alpha_beta(
+    strategy_returns: pd.Series, benchmark_returns: pd.Series, rf: float = 0.0
+) -> AlphaBeta:
+    aligned = pd.concat([strategy_returns, benchmark_returns], axis=1).dropna()
+    if aligned.empty:
+        return AlphaBeta(alpha_daily=float("nan"), alpha_annual=float("nan"), beta=float("nan"))
+    strat = aligned.iloc[:, 0] - rf
+    bench = aligned.iloc[:, 1] - rf
+    mean_strat = strat.mean()
+    mean_bench = bench.mean()
+    var_bench = bench.var()
+    if var_bench == 0 or np.isnan(var_bench):
+        beta = 0.0
+    else:
+        cov = ((strat - mean_strat) * (bench - mean_bench)).mean()
+        beta = cov / var_bench
+    alpha_daily = mean_strat - beta * mean_bench
+    alpha_annual = alpha_daily * 252
+    return AlphaBeta(
+        alpha_daily=float(alpha_daily),
+        alpha_annual=float(alpha_annual),
+        beta=float(beta),
+    )
+
+
 def _write_summary(
     path: Path,
     *,
     stats: LayeredStrategyResults,
     stats_net: LayeredStrategyResults,
     benchmark_stats: LayeredStrategyResults,
+    alpha_beta: AlphaBeta,
+    alpha_beta_net: AlphaBeta,
+    alpha_beta_regime: AlphaBeta,
     trend_window: int,
     trend_z_window: int,
     trend_threshold: float,
@@ -421,12 +473,20 @@ def _write_summary(
         f"  annual vol: {stats.annual_vol:.4f}",
         f"  sharpe: {stats.sharpe:.4f}",
         f"  max drawdown: {stats.max_drawdown:.4f}",
+        f"  alpha (annual): {alpha_beta.alpha_annual:.4f}",
+        f"  beta: {alpha_beta.beta:.4f}",
         "",
         "Layered strategy (net of costs):",
         f"  annual return: {stats_net.annual_return:.4f}",
         f"  annual vol: {stats_net.annual_vol:.4f}",
         f"  sharpe: {stats_net.sharpe:.4f}",
         f"  max drawdown: {stats_net.max_drawdown:.4f}",
+        f"  alpha (annual): {alpha_beta_net.alpha_annual:.4f}",
+        f"  beta: {alpha_beta_net.beta:.4f}",
+        "",
+        "Regime-only strategy:",
+        f"  alpha (annual): {alpha_beta_regime.alpha_annual:.4f}",
+        f"  beta: {alpha_beta_regime.beta:.4f}",
         "",
         "Benchmark (buy-and-hold):",
         f"  annual return: {benchmark_stats.annual_return:.4f}",
@@ -605,6 +665,78 @@ def _plot_rolling_drawdown(frame: pd.DataFrame, output_dir: Path) -> None:
     plt.close(fig)
 
 
+def _rolling_alpha_beta(
+    strategy_returns: pd.Series, benchmark_returns: pd.Series, window: int
+) -> pd.DataFrame:
+    aligned = pd.concat([strategy_returns, benchmark_returns], axis=1).dropna()
+    if aligned.empty:
+        return pd.DataFrame(index=strategy_returns.index, columns=["alpha_annual", "beta"])
+    strat = aligned.iloc[:, 0]
+    bench = aligned.iloc[:, 1]
+    rolling_cov = strat.rolling(window).cov(bench)
+    rolling_var = bench.rolling(window).var()
+    beta = rolling_cov / rolling_var.replace(0, np.nan)
+    mean_strat = strat.rolling(window).mean()
+    mean_bench = bench.rolling(window).mean()
+    alpha_daily = mean_strat - beta * mean_bench
+    alpha_annual = alpha_daily * 252
+    return pd.DataFrame({"alpha_annual": alpha_annual, "beta": beta})
+
+
+def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
+    window = 252
+    layered = _rolling_alpha_beta(
+        frame["strategy_return"], frame["benchmark_return"], window
+    )
+    regime = _rolling_alpha_beta(
+        frame["regime_return"], frame["benchmark_return"], window
+    )
+
+    fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+    axes[0].plot(
+        frame["date"],
+        layered["alpha_annual"],
+        color="slateblue",
+        linewidth=0.9,
+        label="Layered",
+    )
+    axes[0].plot(
+        frame["date"],
+        regime["alpha_annual"],
+        color="#7E57C2",
+        linewidth=0.9,
+        label="Regime",
+    )
+    axes[0].axhline(0.0, color="#616161", linewidth=0.8)
+    axes[0].set_title("Rolling Alpha (1Y, Annualized)")
+    axes[0].set_ylabel("Alpha")
+    axes[0].legend(loc="upper left", frameon=False)
+
+    axes[1].plot(
+        frame["date"],
+        layered["beta"],
+        color="slateblue",
+        linewidth=0.9,
+        label="Layered",
+    )
+    axes[1].plot(
+        frame["date"],
+        regime["beta"],
+        color="#7E57C2",
+        linewidth=0.9,
+        label="Regime",
+    )
+    axes[1].axhline(1.0, color="#616161", linewidth=0.8)
+    axes[1].set_title("Rolling Beta (1Y)")
+    axes[1].set_ylabel("Beta")
+    axes[1].legend(loc="upper left", frameon=False)
+    axes[1].set_xlabel("Date")
+
+    fig.tight_layout()
+    fig.savefig(output_dir / "rolling_alpha_beta.png", dpi=150)
+    plt.close(fig)
+
+
 def _plot_turnover_hist(frame: pd.DataFrame, output_dir: Path) -> None:
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.hist(frame["turnover"], bins=40, color="slateblue", alpha=0.8)
@@ -725,6 +857,7 @@ def _apply_regime_only(frame: pd.DataFrame) -> None:
     exposure_map = {"low": 1.0, "mid": 0.75, "high": 0.25}
     frame["regime_exposure"] = frame["regime"].map(exposure_map).fillna(0.0)
     frame["regime_log_return"] = frame["log_return"] * frame["regime_exposure"]
+    frame["regime_return"] = np.exp(frame["regime_log_return"]) - 1.0
     frame["regime_equity"] = np.exp(frame["regime_log_return"].cumsum())
     frame["regime_peak"] = frame["regime_equity"].cummax()
     frame["regime_drawdown"] = frame["regime_equity"] / frame["regime_peak"] - 1.0

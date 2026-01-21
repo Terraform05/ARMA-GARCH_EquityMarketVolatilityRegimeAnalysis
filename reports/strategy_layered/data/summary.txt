@@ -3,12 +3,20 @@ Layered strategy backtest:
   annual vol: 0.0951
   sharpe: 1.9205
   max drawdown: -0.0903
+  alpha (annual): 0.1290
+  beta: 0.4543
 
 Layered strategy (net of costs):
   annual return: 0.1726
   annual vol: 0.0950
   sharpe: 1.8168
   max drawdown: -0.0908
+  alpha (annual): 0.1191
+  beta: 0.4544
+
+Regime-only strategy:
+  alpha (annual): 0.0119
+  beta: 0.4195
 
 Benchmark (buy-and-hold):
   annual return: 0.1128

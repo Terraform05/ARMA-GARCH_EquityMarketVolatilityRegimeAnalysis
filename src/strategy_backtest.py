@@ -9,6 +9,13 @@ import pandas as pd
 
 
 @dataclass
+class AlphaBeta:
+    alpha_daily: float
+    alpha_annual: float
+    beta: float
+
+
+@dataclass
 class StrategyResults:
     annual_return: float
     annual_vol: float
@@ -46,6 +53,8 @@ def run_strategy_backtest(
     frame = frame.dropna(subset=["log_return", "regime"])
     frame["exposure"] = frame["regime"].map(exposure_map).fillna(0.0)
     frame["strategy_log_return"] = frame["log_return"] * frame["exposure"]
+    frame["benchmark_return"] = np.exp(frame["log_return"]) - 1.0
+    frame["strategy_return"] = np.exp(frame["strategy_log_return"]) - 1.0
 
     frame["benchmark_equity"] = np.exp(frame["log_return"].cumsum())
     frame["strategy_equity"] = np.exp(frame["strategy_log_return"].cumsum())
@@ -54,6 +63,9 @@ def run_strategy_backtest(
     frame["drawdown"] = frame["strategy_equity"] / frame["rolling_peak"] - 1.0
 
     stats = _compute_stats(frame["strategy_log_return"])
+    alpha_beta = _compute_alpha_beta(
+        frame["strategy_return"], frame["benchmark_return"]
+    )
     variants = _evaluate_candidates(frame, exposure_candidates)
     benchmark_stats = _compute_stats(frame["log_return"])
     summary_path = data_dir / "summary.txt"
@@ -65,6 +77,8 @@ def run_strategy_backtest(
                 f"  annual vol: {stats.annual_vol:.4f}",
                 f"  sharpe: {stats.sharpe:.4f}",
                 f"  max drawdown: {stats.max_drawdown:.4f}",
+                f"  alpha (annual): {alpha_beta.alpha_annual:.4f}",
+                f"  beta: {alpha_beta.beta:.4f}",
                 "",
                 "Benchmark (buy-and-hold):",
                 f"  annual return: {benchmark_stats.annual_return:.4f}",
@@ -98,6 +112,7 @@ def run_strategy_backtest(
 
     _plot_equity_curve(frame, plots_dir, suffix="")
     _plot_equity_curve(_last_year_slice(frame), plots_dir, suffix="_last_year")
+    _plot_rolling_alpha_beta(frame, plots_dir)
     _plot_exposure_overlay(frame, plots_dir, suffix="")
     _plot_exposure_overlay(_last_year_slice(frame), plots_dir, suffix="_last_year")
     variants.to_csv(data_dir / "strategy_variants.csv", index=False)
@@ -120,6 +135,31 @@ def _compute_stats(strategy_log_returns: pd.Series) -> StrategyResults:
         annual_vol=float(ann_vol),
         sharpe=float(sharpe),
         max_drawdown=float(max_drawdown),
+    )
+
+
+def _compute_alpha_beta(
+    strategy_returns: pd.Series, benchmark_returns: pd.Series, rf: float = 0.0
+) -> AlphaBeta:
+    aligned = pd.concat([strategy_returns, benchmark_returns], axis=1).dropna()
+    if aligned.empty:
+        return AlphaBeta(alpha_daily=float("nan"), alpha_annual=float("nan"), beta=float("nan"))
+    strat = aligned.iloc[:, 0] - rf
+    bench = aligned.iloc[:, 1] - rf
+    mean_strat = strat.mean()
+    mean_bench = bench.mean()
+    var_bench = bench.var()
+    if var_bench == 0 or np.isnan(var_bench):
+        beta = 0.0
+    else:
+        cov = ((strat - mean_strat) * (bench - mean_bench)).mean()
+        beta = cov / var_bench
+    alpha_daily = mean_strat - beta * mean_bench
+    alpha_annual = alpha_daily * 252
+    return AlphaBeta(
+        alpha_daily=float(alpha_daily),
+        alpha_annual=float(alpha_annual),
+        beta=float(beta),
     )
 
 
@@ -151,6 +191,61 @@ def _plot_equity_curve(frame: pd.DataFrame, output_dir: Path, suffix: str) -> No
     ax.legend(loc="upper left", frameon=False)
     fig.tight_layout()
     fig.savefig(output_dir / f"equity_curve{suffix}.png", dpi=150)
+    plt.close(fig)
+
+
+def _rolling_alpha_beta(
+    strategy_returns: pd.Series, benchmark_returns: pd.Series, window: int
+) -> pd.DataFrame:
+    aligned = pd.concat([strategy_returns, benchmark_returns], axis=1).dropna()
+    if aligned.empty:
+        return pd.DataFrame(index=strategy_returns.index, columns=["alpha_annual", "beta"])
+    strat = aligned.iloc[:, 0]
+    bench = aligned.iloc[:, 1]
+    rolling_cov = strat.rolling(window).cov(bench)
+    rolling_var = bench.rolling(window).var()
+    beta = rolling_cov / rolling_var.replace(0, np.nan)
+    mean_strat = strat.rolling(window).mean()
+    mean_bench = bench.rolling(window).mean()
+    alpha_daily = mean_strat - beta * mean_bench
+    alpha_annual = alpha_daily * 252
+    return pd.DataFrame({"alpha_annual": alpha_annual, "beta": beta})
+
+
+def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
+    window = 252
+    rolling = _rolling_alpha_beta(
+        frame["strategy_return"], frame["benchmark_return"], window
+    )
+    fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+
+    axes[0].plot(
+        frame["date"],
+        rolling["alpha_annual"],
+        color="slateblue",
+        linewidth=0.9,
+        label="Regime Strategy",
+    )
+    axes[0].axhline(0.0, color="#616161", linewidth=0.8)
+    axes[0].set_title("Rolling Alpha (1Y, Annualized)")
+    axes[0].set_ylabel("Alpha")
+    axes[0].legend(loc="upper left", frameon=False)
+
+    axes[1].plot(
+        frame["date"],
+        rolling["beta"],
+        color="slateblue",
+        linewidth=0.9,
+        label="Regime Strategy",
+    )
+    axes[1].axhline(1.0, color="#616161", linewidth=0.8)
+    axes[1].set_title("Rolling Beta (1Y)")
+    axes[1].set_ylabel("Beta")
+    axes[1].legend(loc="upper left", frameon=False)
+    axes[1].set_xlabel("Date")
+
+    fig.tight_layout()
+    fig.savefig(output_dir / "rolling_alpha_beta.png", dpi=150)
     plt.close(fig)
 
 
