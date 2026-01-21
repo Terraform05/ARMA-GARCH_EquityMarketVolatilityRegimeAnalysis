@@ -1,0 +1,49 @@
+Layered strategy backtest:
+  annual return: 0.1825
+  annual vol: 0.0951
+  sharpe: 1.9205
+  max drawdown: -0.0903
+
+Layered strategy (net of costs):
+  annual return: 0.1726
+  annual vol: 0.0950
+  sharpe: 1.8168
+  max drawdown: -0.0908
+
+Benchmark (buy-and-hold):
+  annual return: 0.1128
+  annual vol: 0.1738
+  sharpe: 0.6486
+  max drawdown: -0.3392
+
+  excess return: 0.0698
+  excess return (net): 0.0599
+
+Turnover and costs:
+  cost_bps_per_turnover: 5.00
+  avg_turnover: 0.0788
+  annualized_turnover: 19.86
+  annual_cost_drag: 0.0099
+
+Directional signal:
+  trend_window: 21
+  trend_z_window: 126
+  trend_threshold: 0.15
+  state_confirm: 1
+
+Sizing:
+  sizing_mode: matrix
+  base_exposure: 0.60
+  trend_coef: 0.25
+  vol_coef: 0.25
+  vol_z_window: 252
+  min_exposure: 0.00
+  max_exposure: None
+  rebalance: daily
+  transition_window: 0
+  transition_multiplier: 1.00
+
+Exposure matrix:
+  low: {'strong_up': 1.2, 'neutral': 0.9, 'strong_down': 0.6}
+  mid: {'strong_up': 1.0, 'neutral': 0.7, 'strong_down': 0.4}
+  high: {'strong_up': 0.8, 'neutral': 0.5, 'strong_down': 0.2}

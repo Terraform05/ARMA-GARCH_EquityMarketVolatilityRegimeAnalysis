@@ -1,0 +1,7 @@
+total_candidates: 288
+train_pass_dd_candidates: 285
+best_holdout_candidate:
+  label: tw21_th0.15_rebdaily_sc1_mxaggressive
+  holdout_excess_return: 0.068208
+  holdout_drawdown_gap: 0.248907
+  holdout_sharpe: 2.0853

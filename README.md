@@ -319,6 +319,28 @@ Full‑sample views for context:
 
 ![Exposure overlay](reports/strategy_backtest/plots/exposure_overlay.png)
 
+10) **Layered strategy (regime + trend) backtest**  
+   The layered strategy combines volatility regimes with a 21‑day trend signal. The sweep winner uses an aggressive exposure map and daily rebalancing. It achieves annual return 0.1825, annual vol 0.0951, Sharpe 1.9205, and max drawdown -0.0903, versus buy‑and‑hold at 0.1128 return, 0.1738 vol, and -0.3392 drawdown.  
+   Interpretation: the trend layer adds return while regimes cap risk, producing both higher CAGR and lower drawdown in this sample. See [reports/strategy_layered/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md) for full comparisons and diagnostics.
+
+Key short‑horizon visuals (last 12 months, rebased to the same start):
+- Black line: buy‑and‑hold equity curve.
+- Slate‑blue line: layered strategy equity curve.
+- Trend strip colors: green = strong up, gray = neutral, red = strong down.
+- Regime strip colors: green = low, amber = mid, red = high volatility.
+
+![Layered strategy equity curve (last year)](reports/strategy_layered/plots/equity_curve_last_year.png)
+
+The exposure overlay shows how trend and regime signals combine to set exposure.
+
+![Layered exposure overlay (last year)](reports/strategy_layered/plots/exposure_overlay_last_year.png)
+
+Full‑sample views for context:
+
+![Layered strategy equity curve](reports/strategy_layered/plots/equity_curve.png)
+
+![Layered exposure overlay](reports/strategy_layered/plots/exposure_overlay.png)
+
 ## Actionable Next Steps
 
 - **Risk control:** use regime labels to scale exposure or to set hedge budgets before stress periods, then review hedge ratio signals for timing.
@@ -345,6 +367,7 @@ Full‑sample views for context:
 - [Modeling variants](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/modeling_variants/README.md)
 - [Hedge cost monitoring](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
 - [Regime strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
+- [Layered strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md)
 - [Hedge + strategy overview](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
 
 ## Run All
@@ -363,4 +386,5 @@ Full‑sample views for context:
 - [reports/insights.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/insights.md)
 - [reports/hedge_monitoring/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
 - [reports/strategy_backtest/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
+- [reports/strategy_layered/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md)
 - [reports/hedge_strategy/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
