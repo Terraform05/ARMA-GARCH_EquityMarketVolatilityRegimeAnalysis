@@ -1,0 +1,2 @@
+ARMA order: (3, 2)
+Best variant by BIC: EGARCH_t

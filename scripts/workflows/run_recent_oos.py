@@ -36,7 +36,7 @@ EVAL_END = None  # "YYYY-MM-DD" or None for today
 EVAL_YEARS = 1
 
 # Training window length before evaluation.
-TRAIN_YEARS = 1
+TRAIN_YEARS = 5
 
 # ARMA search space for training window selection.
 ARMA_MAX_P = 3
@@ -73,13 +73,18 @@ def _compute_dates(
 
 
 def _run_dir(
-    output_root: Path, project_name: str, eval_start: pd.Timestamp, eval_end: pd.Timestamp
+    output_root: Path,
+    project_name: str,
+    eval_start: pd.Timestamp,
+    eval_end: pd.Timestamp,
+    train_years: int,
 ) -> Path:
     window = f"{eval_start.date().isoformat()}_to_{eval_end.date().isoformat()}"
+    train_tag = f"train_{train_years}y"
     if USE_RUN_TIMESTAMP:
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return output_root / project_name / window / stamp
-    return output_root / project_name / window
+        return output_root / project_name / window / train_tag / stamp
+    return output_root / project_name / window / train_tag
 
 
 def run_recent_oos_workflow() -> None:
@@ -96,7 +101,7 @@ def run_recent_oos_workflow() -> None:
         EVAL_END, EVAL_YEARS, TRAIN_YEARS
     )
     output_root = Path(OUTPUT_ROOT)
-    run_dir = _run_dir(output_root, PROJECT_NAME, eval_start, eval_end_ts)
+    run_dir = _run_dir(output_root, PROJECT_NAME, eval_start, eval_end_ts, TRAIN_YEARS)
     inputs_dir = run_dir / "inputs"
     inputs_dir.mkdir(parents=True, exist_ok=True)
     data_path = inputs_dir / "spx_vix_aligned.csv"

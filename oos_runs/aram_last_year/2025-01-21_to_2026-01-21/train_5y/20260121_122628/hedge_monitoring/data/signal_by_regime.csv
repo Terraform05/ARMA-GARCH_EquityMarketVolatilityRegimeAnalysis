@@ -1,0 +1,9 @@
+regime,hedge_signal,share
+high,cheap,0.5060240963855421
+high,neutral,0.46987951807228917
+high,expensive,0.024096385542168676
+low,expensive,0.5
+low,neutral,0.5
+mid,neutral,0.825
+mid,cheap,0.0875
+mid,expensive,0.0875

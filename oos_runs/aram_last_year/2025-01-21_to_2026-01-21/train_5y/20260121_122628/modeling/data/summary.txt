@@ -1,0 +1,9 @@
+ARMA model selection:
+  selected order: (3, 2)
+  BIC: -7297.287624
+
+GARCH_t parameters:
+  omega: 0.000003
+  alpha[1]: 0.100000
+  beta[1]: 0.880000
+  alpha + beta: 0.980000

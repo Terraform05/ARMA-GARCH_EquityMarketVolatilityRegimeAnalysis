@@ -1,0 +1,14 @@
+Out-of-sample check:
+  split date: 2025-01-21
+  train rows: 1,256
+  test rows:  252
+  ARMA order: (3, 2)
+
+OOS metrics (static forecast vs realized):
+  corr:  -0.2236
+  rmse:  11.4346
+  available: True
+
+OOS metrics (rolling 1-step vs realized):
+  corr:  0.9302
+  rmse:  4.0673
