@@ -59,6 +59,17 @@ Interpretation:
 - Rolling alpha/beta in `plots/rolling_alpha_beta.png` shows alpha hovering near
   zero with occasional spikes; beta rises toward 1.0 in extended low-vol regimes.
 
+### `plots/rolling_alpha_beta.png`
+
+- Rolling alpha spends much of the sample near zero and dips negative during
+  persistent bull markets, reflecting opportunity cost of reduced exposure.
+- Alpha spikes briefly around major volatility events, suggesting the overlay
+  adds value primarily during stress windows.
+- Rolling beta rises in low-volatility regimes (exposure increases), then falls
+  sharply during high-volatility regimes (exposure throttles down).
+- Beta rarely reaches 1.0, confirming the strategy stays structurally under-
+  exposed relative to the benchmark.
+
 ## Summary Table
 
 Populated after running the pipeline (from `data/summary.txt`):

@@ -301,6 +301,15 @@ short window. See `plots/rolling_alpha_beta.png`.
 7) Tail-risk plot: worst 20 daily returns vs benchmark
 8) Cost sensitivity: add 5-10 bps per trade and replot equity curve
 
+## GBM Forward Test (Synthetic Paths)
+
+For a forward-looking stress test using geometric Brownian motion, see:
+
+- `reports/strategy_layered_gbm/README.md`
+
+This report includes 1Y/3Y/5Y simulated horizons with baselines, plus return,
+drawdown, and alpha distributions.
+
 ## Practical Next Steps
 
 1) Add turnover and cost-adjusted equity curves.
@@ -317,3 +326,71 @@ short window. See `plots/rolling_alpha_beta.png`.
 ![Equity curve (last year)](plots/equity_curve_last_year.png)
 
 ![Exposure overlay (last year)](plots/exposure_overlay_last_year.png)
+
+## Plot-by-Plot Interpretation (Detailed)
+
+### `plots/equity_curve.png`
+- The layered strategy compounds faster than buy-and-hold over the full sample.
+- The gap between layered and benchmark widens in 2020–2026, showing sustained edge.
+- The curve is smoother (lower volatility) despite higher terminal value.
+
+### `plots/equity_curve_net.png`
+- Net performance tracks the gross curve closely, showing modest cost drag.
+- The terminal gap vs benchmark remains large even after costs.
+- Use this to sanity-check whether the edge survives realistic transaction costs.
+
+### `plots/equity_curve_last_year.png`
+- The layered curve stays above the benchmark through the 2025 drawdown window.
+- The recovery phase is faster than buy-and-hold, indicating trend re‑risking.
+- This view isolates short‑term behavior and timing quality.
+
+### `plots/equity_curve_net_last_year.png`
+- Net returns remain above the benchmark across most of the last year.
+- The net curve stays close to gross, suggesting turnover is not extreme.
+- If this curve were below benchmark, costs would be the first suspect.
+
+### `plots/exposure_overlay.png`
+- Exposure responds to both trend shifts and regime changes, creating more frequent
+  step changes than the regime-only strategy.
+- Extended low-vol + strong-up windows show exposures near 1.0–1.2.
+- High-vol + strong-down windows compress exposure toward the 0.2 floor.
+
+### `plots/exposure_overlay_last_year.png`
+- Early‑year downtrend compresses exposure quickly, limiting drawdown depth.
+- Mid‑year trend recovery lifts exposure even as regimes remain mixed.
+- Late‑year exposure tapers with trend softening despite calmer regimes.
+
+### `plots/equity_curve_compare.png`
+- Layered clearly dominates regime-only and benchmark in terminal value.
+- Regime-only stays below benchmark, confirming it is mainly a risk‑control overlay.
+- The layered edge compounds over time rather than appearing as a one‑off spike.
+
+### `plots/equity_curve_compare_last_year.png`
+- Layered ends above both regime-only and benchmark over the last year.
+- Regime-only remains below benchmark after the drawdown, reflecting conservative exposure.
+- The comparison shows the incremental value of the trend layer in a stressed year.
+
+### `plots/rolling_cagr.png`
+- 1Y rolling CAGR: layered usually stays above benchmark with fewer deep negative dips.
+- 3Y rolling CAGR: layered is consistently the highest, signaling durable outperformance.
+- Regime-only is lowest, highlighting the return tradeoff of pure risk control.
+
+### `plots/rolling_drawdown.png`
+- 1Y rolling max drawdown: layered drawdowns are materially shallower than benchmark.
+- 3Y rolling max drawdown: layered is consistently the least severe of the three.
+- Regime-only sits between layered and benchmark, as expected for a risk overlay.
+
+### `plots/rolling_alpha_beta.png`
+- Layered rolling alpha is positive for long stretches and spikes during stress windows.
+- Regime-only alpha oscillates near zero, confirming limited alpha generation.
+- Rolling beta stays below 1.0 for both, with layered generally around 0.4–0.7.
+
+### `plots/turnover_hist.png`
+- Most days show near‑zero turnover, indicating stable exposure most of the time.
+- Distinct spikes around 0.2–0.3 reflect discrete exposure map transitions.
+- Rare large jumps indicate full shifts from risk‑on to defensive states.
+
+### `plots/cost_sensitivity.png`
+- Net annual return declines roughly linearly as cost bps rise.
+- Net Sharpe also declines linearly, indicating turnover is not exploding at higher costs.
+- Even at 10 bps, net returns remain solid, though the margin vs benchmark narrows.

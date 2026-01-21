@@ -341,6 +341,30 @@ Full‑sample views for context:
 
 ![Layered exposure overlay](reports/strategy_layered/plots/exposure_overlay.png)
 
+11) **Layered diagnostics and alpha/beta**  
+   Rolling diagnostics confirm the layered edge is persistent, not a one‑off spike: 1Y/3Y rolling CAGR stays above the benchmark for most of the sample, and rolling max drawdown remains materially lower than buy‑and‑hold. Alpha/beta computed on simple returns show annualized alpha 0.1290 (net 0.1191 at 5 bps) with beta ~0.45, meaning the strategy delivers excess return with lower market exposure.  
+   Turnover is moderate (avg daily turnover 0.0788, annualized 19.86), with an estimated annual cost drag of ~0.0099 at 5 bps. The cost sensitivity plot shows a roughly linear decline in net return as costs rise.
+
+Key diagnostics (full sample):
+
+![Layered vs regime vs benchmark](reports/strategy_layered/plots/equity_curve_compare.png)
+![Rolling CAGR](reports/strategy_layered/plots/rolling_cagr.png)
+![Rolling drawdown](reports/strategy_layered/plots/rolling_drawdown.png)
+![Rolling alpha/beta](reports/strategy_layered/plots/rolling_alpha_beta.png)
+![Turnover distribution](reports/strategy_layered/plots/turnover_hist.png)
+![Cost sensitivity](reports/strategy_layered/plots/cost_sensitivity.png)
+
+12) **GBM forward test (synthetic paths)**  
+   Forward simulations using geometric Brownian motion provide a rough sanity check across 1Y/3Y/5Y horizons. The layered strategy, regime‑only baseline, and buy‑and‑hold are all evaluated on identical simulated paths. This is not a realistic regime model, but it helps test robustness under a simple stochastic assumption.  
+   See [reports/strategy_layered_gbm/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered_gbm/README.md) for distributions and outperformance rates.
+
+GBM diagnostics (synthetic):
+
+![GBM annual return distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_return_dist_1y.png)
+![GBM max drawdown distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_drawdown_dist_1y.png)
+![GBM alpha distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_alpha_dist_1y.png)
+![GBM outperformance (1Y)](reports/strategy_layered_gbm/plots/gbm_outperformance_1y.png)
+
 ## Actionable Next Steps
 
 - **Risk control:** use regime labels to scale exposure or to set hedge budgets before stress periods, then review hedge ratio signals for timing.
@@ -368,6 +392,7 @@ Full‑sample views for context:
 - [Hedge cost monitoring](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
 - [Regime strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
 - [Layered strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md)
+- [Layered strategy GBM forward test](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered_gbm/README.md)
 - [Hedge + strategy overview](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
 
 ## Run All
@@ -387,4 +412,5 @@ Full‑sample views for context:
 - [reports/hedge_monitoring/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
 - [reports/strategy_backtest/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
 - [reports/strategy_layered/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md)
+- [reports/strategy_layered_gbm/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered_gbm/README.md)
 - [reports/hedge_strategy/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
