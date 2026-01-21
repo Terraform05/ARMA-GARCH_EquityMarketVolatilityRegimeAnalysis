@@ -10,7 +10,7 @@ Model and interpret volatility regimes in equity markets by separating return dy
 - Hedge‑cost monitoring flags when protection is cheap vs expensive.
 - Backtest: regime strategy lowers drawdowns; see `reports/strategy_backtest/README.md`.
 
-## Abstract - Last year project
+## Abstract - 1-year Backtest
 
 This report summarizes a last-year out of sample run that trains on the prior year and evaluates the 2025-01-21 to 2026-01-21 window. The April 2025 tariff shock and subsequent policy reversals and fast headline shifts dominate the volatility regime, driving a sharp spike in conditional variance, a high-vol regime cluster, and a clear separation between implied and realized volatility. Rolling forecasts track the shock faster than static forecasts, while regime-based exposure cuts reduce drawdown depth at the cost of lower total return versus buy-and-hold. Event chronologies tie each key plot to the policy and macro catalysts that shaped the risk environment.
 
