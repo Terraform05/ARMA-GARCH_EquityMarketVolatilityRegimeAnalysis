@@ -8,14 +8,14 @@ Model and interpret volatility regimes in equity markets by separating return dy
 - Default model selection prioritizes realized‑vol tracking (GARCH), with BIC‑best available via config.
 - Regime labels drive a risk‑control overlay that reduces drawdowns at the cost of lower return.
 - Hedge‑cost monitoring flags when protection is cheap vs expensive.
-- Backtest: regime strategy lowers drawdowns; see `reports/strategy_backtest/README.md`.
+- Backtest: regime strategy lowers drawdowns; see [reports/strategy_backtest/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md).
 
 ## Abstract - 1-year Backtest
 
 This report summarizes a last-year out of sample run that trains on the prior year and evaluates the 2025-01-21 to 2026-01-21 window. The April 2025 tariff shock and subsequent policy reversals and fast headline shifts dominate the volatility regime, driving a sharp spike in conditional variance, a high-vol regime cluster, and a clear separation between implied and realized volatility. Rolling forecasts track the shock faster than static forecasts, while regime-based exposure cuts reduce drawdown depth at the cost of lower total return versus buy-and-hold. Event chronologies tie each key plot to the policy and macro catalysts that shaped the risk environment.
 
-Full report: `oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md`
-Comparison report (train 1y vs 5y): `oos_runs/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md`
+Full report: [oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md)
+Comparison report (train 1y vs 5y): [oos_runs/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/oos_runs/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md)
 
 ## Project Objective (Economic Lens)
 
@@ -294,12 +294,12 @@ To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic
 
 8) **Hedge‑cost monitoring**  
    The hedge ratio (VIX / realized vol) flags expensive vs cheap hedging. Current thresholds are 1.056 (cheap) and 1.925 (expensive), with 20.00% of days cheap and 20.00% expensive. Average signal persistence is 4.6 days (cheap), 7.8 days (neutral), and 5.9 days (expensive).  
-   Practical use: use the ratio as a budgeting signal (hedge more when cheap, hedge less or seek alternatives when expensive). See `reports/hedge_monitoring/README.md` for full tables and plots.
+   Practical use: use the ratio as a budgeting signal (hedge more when cheap, hedge less or seek alternatives when expensive). See [reports/hedge_monitoring/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md) for full tables and plots.
 
 9) **Regime strategy backtest**  
    The baseline exposure rule (low=1.0, mid=0.75, high=0.25) yields annual return 0.0618, annual vol 0.0872, Sharpe 0.7085, and max drawdown -0.1234. Buy‑and‑hold returns 0.1128 with vol 0.1738 and max drawdown -0.3392.  
    The Sharpe‑best exposure map is low=1.0, mid=1.0, high=0.5 with Sharpe 0.7397.  
-   Interpretation: the regime strategy sacrifices return for lower drawdowns and higher risk‑adjusted performance. If your objective is pure return, buy‑and‑hold wins; if your objective is risk control, the strategy helps. See `reports/strategy_backtest/README.md` for the equity curve and variant table.
+   Interpretation: the regime strategy sacrifices return for lower drawdowns and higher risk‑adjusted performance. If your objective is pure return, buy‑and‑hold wins; if your objective is risk control, the strategy helps. See [reports/strategy_backtest/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md) for the equity curve and variant table.
 
 Key short‑horizon visuals (last 12 months, rebased to the same start):
 - Black line: buy‑and‑hold equity curve.
@@ -323,7 +323,7 @@ Full‑sample views for context:
 
 - **Risk control:** use regime labels to scale exposure or to set hedge budgets before stress periods, then review hedge ratio signals for timing.
 - **Model choice:** choose BIC‑best (EGARCH_t) for in‑sample fit or tracking‑best (GARCH) when the goal is aligning with realized volatility.
-- **Strategy tuning:** evaluate the Sharpe‑optimized exposure map from `reports/strategy_backtest/data/strategy_variants.csv`, then rerun to confirm stability.
+- **Strategy tuning:** evaluate the Sharpe‑optimized exposure map from [reports/strategy_backtest/data/strategy_variants.csv](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/data/strategy_variants.csv), then rerun to confirm stability.
 - **Hold vs strategy:** if you only care about total return, buy‑and‑hold wins in this sample; if drawdown control matters, the regime strategy is the better fit.
 
 ## Scope
@@ -340,12 +340,12 @@ Full‑sample views for context:
 - [Model validation](docs/04_validation.md)
 - [Regime interpretation](docs/05_regime_analysis.md)
 - [Out-of-sample check](docs/06_oos_check.md)
-- [Executive summary](reports/summary.md)
-- [Insights report](reports/insights.md)
-- [Modeling variants](reports/modeling_variants/README.md)
-- [Hedge cost monitoring](reports/hedge_monitoring/README.md)
-- [Regime strategy backtest](reports/strategy_backtest/README.md)
-- [Hedge + strategy overview](reports/hedge_strategy/README.md)
+- [Executive summary](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/summary.md)
+- [Insights report](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/insights.md)
+- [Modeling variants](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/modeling_variants/README.md)
+- [Hedge cost monitoring](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
+- [Regime strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
+- [Hedge + strategy overview](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
 
 ## Run All
 
@@ -354,13 +354,13 @@ Full‑sample views for context:
 ## Key Outputs
 
 - `data/processed/spx_vix_aligned.csv`
-- `reports/diagnostics/README.md`
-- `reports/modeling/README.md`
-- `reports/modeling_variants/README.md`
-- `reports/validation/README.md`
-- `reports/regime_analysis/README.md`
-- `reports/oos_check/README.md`
-- `reports/insights.md`
-- `reports/hedge_monitoring/README.md`
-- `reports/strategy_backtest/README.md`
-- `reports/hedge_strategy/README.md`
+- [reports/diagnostics/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/diagnostics/README.md)
+- [reports/modeling/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/modeling/README.md)
+- [reports/modeling_variants/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/modeling_variants/README.md)
+- [reports/validation/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/validation/README.md)
+- [reports/regime_analysis/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/regime_analysis/README.md)
+- [reports/oos_check/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/oos_check/README.md)
+- [reports/insights.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/insights.md)
+- [reports/hedge_monitoring/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
+- [reports/strategy_backtest/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
+- [reports/hedge_strategy/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
