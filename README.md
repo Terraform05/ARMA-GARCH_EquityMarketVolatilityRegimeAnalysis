@@ -10,6 +10,12 @@ Model and interpret volatility regimes in equity markets by separating return dy
 - Hedge‑cost monitoring flags when protection is cheap vs expensive.
 - Backtest: regime strategy lowers drawdowns; see `reports/strategy_backtest/README.md`.
 
+## Abstract - Last year project
+
+This report summarizes a last-year out of sample run that trains on the prior year and evaluates the 2025-01-21 to 2026-01-21 window. The April 2025 tariff shock and subsequent policy reversals and fast headline shifts dominate the volatility regime, driving a sharp spike in conditional variance, a high-vol regime cluster, and a clear separation between implied and realized volatility. Rolling forecasts track the shock faster than static forecasts, while regime-based exposure cuts reduce drawdown depth at the cost of lower total return versus buy-and-hold. Event chronologies tie each key plot to the policy and macro catalysts that shaped the risk environment.
+
+Full report: `oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md`
+
 ## Project Objective (Economic Lens)
 
 This project focuses on regime interpretation, not trading or alpha generation. It aims to explain *market behavior* (stability vs transition) by identifying volatility regimes and showing how regime conviction (or lack thereof) drives realized volatility and risk repricing. The core questions and answers are:
@@ -158,7 +164,7 @@ This project reframes volatility as a signal of market uncertainty and regime tr
 
 This project takes daily S&P 500 prices and the VIX index, transforms them into returns, then models how average returns behave and how volatility changes over time. The model produces a time series of conditional volatility, which is used to label low‑ and high‑volatility regimes and compare to implied volatility (VIX). Diagnostics and validation checks show whether the model is a good fit or whether volatility dynamics remain unexplained.
 
-The workflow is intentionally linear: data prep feeds diagnostics; diagnostics guide model choice; modeling produces conditional volatility; validation checks model adequacy; regime analysis interprets volatility states; the OOS check stress‑tests the model’s forecasting behavior.
+The workflow is intentionally linear: data prep feeds diagnostics; diagnostics guide model choice; modeling produces conditional volatility; validation checks model adequacy; regime analysis interprets volatility states; the out of sample check stress‑tests the model’s forecasting behavior.
 
 ## Math (Explained)
 
@@ -279,11 +285,11 @@ To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic
 ![Regime outcomes](reports/regime_analysis/plots/regime_outcomes.png)
 
 7) **Out‑of‑sample check**  
-   The holdout window is 2024‑01‑01 to 2026‑01‑01 (502 rows). With GARCH selected, both static and rolling forecasts are available; rolling OOS correlation vs realized is 0.9193 with RMSE 3.2394 (static: corr 0.1696, RMSE 8.2674).  
+   The holdout window is 2024‑01‑01 to 2026‑01‑01 (502 rows). With GARCH selected, both static and rolling forecasts are available; rolling out of sample correlation vs realized is 0.9193 with RMSE 3.2394 (static: corr 0.1696, RMSE 8.2674).  
    The rolling forecast plot below shows how well volatility is tracked in the holdout.
    This is a monitoring check, not a trading signal: directional tracking is the key success criterion.
 
-![OOS rolling forecast vs realized](reports/oos_check/plots/forecast_vs_realized_rolling.png)
+![out of sample rolling forecast vs realized](reports/oos_check/plots/forecast_vs_realized_rolling.png)
 
 8) **Hedge‑cost monitoring**  
    The hedge ratio (VIX / realized vol) flags expensive vs cheap hedging. Current thresholds are 1.056 (cheap) and 1.925 (expensive), with 20.00% of days cheap and 20.00% expensive. Average signal persistence is 4.6 days (cheap), 7.8 days (neutral), and 5.9 days (expensive).  
