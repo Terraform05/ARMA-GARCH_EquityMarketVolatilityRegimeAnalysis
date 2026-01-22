@@ -14,10 +14,16 @@
 
 ## Figures
 
-The return and squared-return plot shows volatility clustering, which motivates time‑varying variance models.
-
 ![Returns and squared returns](plots/returns_series.png)
 
-ACF/PACF indicate short‑lag structure in returns and guide ARMA order selection.
+Plot notes:
+- The squared-return series clusters into bursts, showing volatility clustering that a constant-variance model would miss.
+- Large spikes align with stress windows; the persistence after spikes supports a GARCH-style variance process.
+- The raw return series centers near zero with occasional shocks, consistent with a weak mean signal.
 
 ![ACF and PACF](plots/acf_pacf.png)
+
+Plot notes:
+- Return ACF/PACF are small beyond short lags, indicating limited linear predictability in the mean.
+- Squared-return ACF decays more slowly, which signals persistent volatility dynamics.
+- The quick decay in returns but persistence in squared returns is the classic ARMA+GARCH use case.

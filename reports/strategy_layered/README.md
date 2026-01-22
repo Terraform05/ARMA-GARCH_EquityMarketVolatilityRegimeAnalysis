@@ -74,11 +74,12 @@ Holdout metrics:
 - `data/exposure_stats.csv` for exposure distribution
 - `data/turnover_stats.csv` for turnover distribution stats
 - `data/cost_sensitivity.csv` for net performance vs cost assumptions
+- `data/regime_map_comparison.csv` for regime-only exposure map sensitivity
 - `plots/equity_curve.png` for gross strategy vs benchmark
 - `plots/equity_curve_net.png` for net (cost-adjusted) strategy vs benchmark
 - `plots/equity_curve_last_year.png` for last-year gross zoom
 - `plots/equity_curve_net_last_year.png` for last-year net zoom
-- `plots/equity_curve_compare.png` for benchmark vs regime-only vs layered
+- `plots/equity_curve_compare.png` for benchmark vs regime-only vs trend-only vs layered
 - `plots/equity_curve_compare_last_year.png` for last-year comparison
 - `plots/exposure_overlay.png` for exposure with trend + regime strips
 - `plots/exposure_overlay_last_year.png` for last-year exposure zoom
@@ -114,6 +115,19 @@ Scale effects:
 - Market impact is nonlinear at large sizes; cost per bps rises as trade size
   increases, so large portfolios will experience higher effective costs.
 
+## Regime Exposure Map Sensitivity
+
+`data/regime_map_comparison.csv` compares regime-only performance across
+different exposure maps (default, sharpe_best, aggressive, defensive). This
+helps isolate how much return can be gained from regime tuning alone, and
+quantifies the incremental value of adding the trend layer.
+
+Summary from the latest run:
+- default: return 0.0618, vol 0.0872, Sharpe 0.7085, max DD -0.1234
+- sharpe_best: return 0.0877, vol 0.1185, Sharpe 0.7397, max DD -0.2066
+- aggressive: return 0.0899, vol 0.1258, Sharpe 0.7151, max DD -0.2087
+- defensive: return 0.0358, vol 0.0673, Sharpe 0.5325, max DD -0.1095
+
 ## Performance Comparison (Full Sample)
 
 Source: `reports/strategy_layered/data/summary.txt` and
@@ -123,6 +137,7 @@ Source: `reports/strategy_layered/data/summary.txt` and
 | --- | --- | --- | --- | --- | --- |
 | Layered strategy | 0.1825 | 0.0951 | 1.9205 | -0.0903 | +0.0698 |
 | Layered strategy (net, 5 bps) | 0.1726 | 0.0950 | 1.8168 | -0.0908 | +0.0599 |
+| Trend-only strategy | 0.1908 | 0.1090 | 1.7503 | -0.1527 | +0.0780 |
 | Regime-only strategy | 0.0618 | 0.0872 | 0.7085 | -0.1234 | -0.0510 |
 | Buy-and-hold | 0.1128 | 0.1738 | 0.6486 | -0.3392 | 0.0000 |
 
@@ -132,7 +147,7 @@ Layered vs regime-only deltas:
 - Sharpe: +1.2120
 - Max drawdown improves from -0.1234 to -0.0903
 
-## Graph Comparisons (Regime-Only vs Layered)
+## Graph Comparisons (Benchmark vs Regime-Only vs Trend-Only vs Layered)
 
 ### Equity Curve (Full Sample)
 
@@ -144,6 +159,7 @@ What changes:
 - Regime-only equity stays well below the benchmark for most of the sample.
 - Layered equity diverges upward and finishes far above the benchmark.
 - The separation shows the trend layer adds return instead of only risk control.
+- Trend-only sits between regime-only and layered (see `plots/equity_curve_compare.png`).
 
 ### Equity Curve (Last Year)
 
@@ -154,6 +170,7 @@ Files:
 What changes:
 - Regime-only remains below the benchmark after the drawdown.
 - Layered recovers faster and ends above the benchmark.
+- Trend-only recovers faster than regime-only but lags layered.
 
 ### Exposure Overlay (Full Sample)
 
@@ -199,6 +216,8 @@ From `reports/strategy_layered/data/summary.txt`:
 - Layered beta (net): 0.4544
 - Regime-only alpha (annual): 0.0119
 - Regime-only beta: 0.4195
+- Trend-only alpha (annual): 0.1231
+- Trend-only beta: 0.5763
 
 Interpretation:
 - Layered alpha is materially positive, suggesting returns are not just a
@@ -317,80 +336,115 @@ drawdown, and alpha distributions.
 3) Test a slower trend window (42 or 63) to reduce noise.
 4) Run a holdout-only backtest using the same parameters (no retuning).
 
-## Figures (Layered Strategy)
-
-![Equity curve](plots/equity_curve.png)
-
-![Exposure overlay](plots/exposure_overlay.png)
-
-![Equity curve (last year)](plots/equity_curve_last_year.png)
-
-![Exposure overlay (last year)](plots/exposure_overlay_last_year.png)
-
 ## Plot-by-Plot Interpretation (Detailed)
 
 ### `plots/equity_curve.png`
+![Equity curve](plots/equity_curve.png)
+
+Plot notes:
 - The layered strategy compounds faster than buy-and-hold over the full sample.
 - The gap between layered and benchmark widens in 2020–2026, showing sustained edge.
 - The curve is smoother (lower volatility) despite higher terminal value.
 
 ### `plots/equity_curve_net.png`
+![Equity curve (net)](plots/equity_curve_net.png)
+
+Plot notes:
 - Net performance tracks the gross curve closely, showing modest cost drag.
 - The terminal gap vs benchmark remains large even after costs.
 - Use this to sanity-check whether the edge survives realistic transaction costs.
 
 ### `plots/equity_curve_last_year.png`
+![Equity curve (last year)](plots/equity_curve_last_year.png)
+
+Plot notes:
 - The layered curve stays above the benchmark through the 2025 drawdown window.
 - The recovery phase is faster than buy-and-hold, indicating trend re‑risking.
 - This view isolates short‑term behavior and timing quality.
 
 ### `plots/equity_curve_net_last_year.png`
+![Equity curve (net, last year)](plots/equity_curve_net_last_year.png)
+
+Plot notes:
 - Net returns remain above the benchmark across most of the last year.
 - The net curve stays close to gross, suggesting turnover is not extreme.
 - If this curve were below benchmark, costs would be the first suspect.
 
 ### `plots/exposure_overlay.png`
+![Exposure overlay](plots/exposure_overlay.png)
+
+Plot notes:
 - Exposure responds to both trend shifts and regime changes, creating more frequent
   step changes than the regime-only strategy.
 - Extended low-vol + strong-up windows show exposures near 1.0–1.2.
 - High-vol + strong-down windows compress exposure toward the 0.2 floor.
 
 ### `plots/exposure_overlay_last_year.png`
+![Exposure overlay (last year)](plots/exposure_overlay_last_year.png)
+
+Plot notes:
 - Early‑year downtrend compresses exposure quickly, limiting drawdown depth.
 - Mid‑year trend recovery lifts exposure even as regimes remain mixed.
 - Late‑year exposure tapers with trend softening despite calmer regimes.
 
 ### `plots/equity_curve_compare.png`
-- Layered clearly dominates regime-only and benchmark in terminal value.
+![Equity curve comparison](plots/equity_curve_compare.png)
+
+Plot notes:
+- Trend-only has the highest terminal equity, but also higher drawdown volatility.
+- Layered finishes below trend-only but well above benchmark, indicating risk‑adjusted balance.
 - Regime-only stays below benchmark, confirming it is mainly a risk‑control overlay.
-- The layered edge compounds over time rather than appearing as a one‑off spike.
+- The layered edge compounds steadily rather than appearing as a one‑off spike.
 
 ### `plots/equity_curve_compare_last_year.png`
-- Layered ends above both regime-only and benchmark over the last year.
+![Equity curve comparison (last year)](plots/equity_curve_compare_last_year.png)
+
+Plot notes:
+- Trend-only ends highest, layered stays close behind, benchmark below both.
+- Layered drawdown is shallower than trend-only during the shock window.
 - Regime-only remains below benchmark after the drawdown, reflecting conservative exposure.
-- The comparison shows the incremental value of the trend layer in a stressed year.
+- The comparison highlights the tradeoff: trend-only maximizes return, layered smooths risk.
 
 ### `plots/rolling_cagr.png`
+![Rolling CAGR](plots/rolling_cagr.png)
+
+Plot notes:
 - 1Y rolling CAGR: layered usually stays above benchmark with fewer deep negative dips.
-- 3Y rolling CAGR: layered is consistently the highest, signaling durable outperformance.
+- Trend-only often exceeds layered in strong bull windows but drops more sharply in reversals.
+- 3Y rolling CAGR: layered is consistently above benchmark; trend-only can lead but is noisier.
 - Regime-only is lowest, highlighting the return tradeoff of pure risk control.
 
 ### `plots/rolling_drawdown.png`
+![Rolling drawdown](plots/rolling_drawdown.png)
+
+Plot notes:
 - 1Y rolling max drawdown: layered drawdowns are materially shallower than benchmark.
-- 3Y rolling max drawdown: layered is consistently the least severe of the three.
+- Trend-only drawdowns are meaningfully larger than layered, explaining its higher volatility.
+- 3Y rolling max drawdown: layered remains the least severe overall.
 - Regime-only sits between layered and benchmark, as expected for a risk overlay.
 
 ### `plots/rolling_alpha_beta.png`
+![Rolling alpha/beta](plots/rolling_alpha_beta.png)
+
+Plot notes:
 - Layered rolling alpha is positive for long stretches and spikes during stress windows.
+- Trend-only alpha is generally positive but more volatile than layered.
 - Regime-only alpha oscillates near zero, confirming limited alpha generation.
-- Rolling beta stays below 1.0 for both, with layered generally around 0.4–0.7.
+- Rolling beta: trend-only runs the highest beta (~0.5–0.8), layered stays lower (~0.4–0.7),
+  regime-only is lowest and spikes toward 1.0 in extended low-vol regimes.
 
 ### `plots/turnover_hist.png`
+![Turnover distribution](plots/turnover_hist.png)
+
+Plot notes:
 - Most days show near‑zero turnover, indicating stable exposure most of the time.
 - Distinct spikes around 0.2–0.3 reflect discrete exposure map transitions.
 - Rare large jumps indicate full shifts from risk‑on to defensive states.
 
 ### `plots/cost_sensitivity.png`
+![Cost sensitivity](plots/cost_sensitivity.png)
+
+Plot notes:
 - Net annual return declines roughly linearly as cost bps rise.
 - Net Sharpe also declines linearly, indicating turnover is not exploding at higher costs.
 - Even at 10 bps, net returns remain solid, though the margin vs benchmark narrows.

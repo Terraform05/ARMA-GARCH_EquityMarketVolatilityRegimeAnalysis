@@ -230,10 +230,15 @@ The $\sqrt{252}$ factor annualizes daily volatility using the standard number of
 
 2) **Preliminary diagnostics**  
    Returns are stationary (ADF statistic -13.7338, p < 0.001) and volatility clustering is strong (ARCH statistic 1270.0264, p < 0.001). This supports ARMA for the mean and GARCH‑family models for the variance.  
-   The plots below show return clustering and short‑lag dependence.
+The plots below show return clustering and short‑lag dependence.
 
 ![Returns and squared returns](reports/diagnostics/plots/returns_series.png)
 ![ACF and PACF](reports/diagnostics/plots/acf_pacf.png)
+
+Plot notes:
+- Returns and squared returns: squared returns cluster into bursts, showing volatility clustering and motivating GARCH.
+- Returns and squared returns: large spikes align with stress windows and highlight tail risk.
+- ACF and PACF: return autocorrelation decays quickly, but squared returns persist, indicating volatility dynamics.
 
 3) **Model variants and selection**  
    GARCH, GJR, and EGARCH variants are compared with normal vs Student‑t errors. By default the pipeline selects the best model by realized‑vol tracking (currently **GARCH**), which aligns the model to observed volatility behavior.  
@@ -246,6 +251,13 @@ The $\sqrt{252}$ factor annualizes daily volatility using the standard number of
 ![Variant metrics](reports/modeling_variants/plots/variant_metrics.png)
 ![Best variant volatility](reports/modeling_variants/plots/best_variant_volatility.png)
 ![BIC vs tracking](reports/modeling_variants/plots/bic_vs_tracking.png)
+
+Plot notes:
+- Variant comparison: top models co-move in calm periods; stress windows reveal meaningful divergence.
+- Variants vs realized: closest tracking line indicates best realized-vol alignment; persistent gaps show scale bias.
+- Variant metrics: lower (more negative) AIC/BIC is better, but only relative differences matter.
+- Best variant volatility: the conditional vol path should spike during stress and mean-revert after.
+- BIC vs tracking: the tradeoff shows whether you are optimizing fit or realized-vol tracking.
 
 Variant accuracy vs realized volatility (lower RMSE/QLIKE and higher correlation are better):
 
@@ -276,6 +288,11 @@ To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic
 ![Residual ACF](reports/validation/plots/residuals_acf.png)
 ![Residual Q-Q](reports/validation/plots/residuals_qq.png)
 
+Plot notes:
+- Residual series: clustered spikes indicate remaining structure after the fit.
+- Residual ACF: residual and squared-residual autocorrelation shows incomplete mean and variance capture.
+- Residual Q-Q: tail deviations from the diagonal suggest heavy tails and justify t-errors.
+
 6) **Regime interpretation**  
    Conditional volatility is split into low/mid/high regimes using 33% and 66% quantiles (low <= 0.007292, high >= 0.009889). The realized volatility window that aligns best with VIX is 10 days.  
    The figures below show regime structure, implied vs realized comparison, and outcome summaries by regime.
@@ -285,12 +302,22 @@ To force the pipeline to use the BIC‑best model, set `VARIANT_SELECTION = "bic
 ![Window metrics](reports/regime_analysis/plots/realized_window_metrics.png)
 ![Regime outcomes](reports/regime_analysis/plots/regime_outcomes.png)
 
+Plot notes:
+- Regime scatter: long blocks show persistent volatility states; rapid flips indicate noisy transitions.
+- VIX vs realized: alignment in peaks and troughs validates the realized window choice.
+- Window metrics: the chosen window should sit near a stable correlation/RMSE tradeoff.
+- Regime outcomes: high-vol regimes should show worse drawdowns and weaker returns.
+
 7) **Out‑of‑sample check**  
    The holdout window is 2024‑01‑01 to 2026‑01‑01 (502 rows). With GARCH selected, both static and rolling forecasts are available; rolling out of sample correlation vs realized is 0.9193 with RMSE 3.2394 (static: corr 0.1696, RMSE 8.2674).  
    The rolling forecast plot below shows how well volatility is tracked in the holdout.
    This is a monitoring check, not a trading signal: directional tracking is the key success criterion.
 
 ![out of sample rolling forecast vs realized](reports/oos_check/plots/forecast_vs_realized_rolling.png)
+
+Plot notes:
+- The forecast should move in the same direction as realized volatility even if levels differ.
+- Persistent gaps indicate scaling errors or a mismatch between model and realized window length.
 
 8) **Hedge‑cost monitoring**  
    The hedge ratio (VIX / realized vol) flags expensive vs cheap hedging. Current thresholds are 1.056 (cheap) and 1.925 (expensive), with 20.00% of days cheap and 20.00% expensive. Average signal persistence is 4.6 days (cheap), 7.8 days (neutral), and 5.9 days (expensive).  
@@ -313,14 +340,23 @@ The exposure overlay shows how the regime labels drive risk scaling: exposure ri
 
 ![Exposure overlay (last year)](reports/strategy_backtest/plots/exposure_overlay_last_year.png)
 
+Plot notes:
+- Equity curve (last year): the regime line should dip less during drawdowns if the overlay is working.
+- Exposure overlay (last year): exposure steps down in high-volatility regimes and rises in low-volatility regimes.
+
 Full‑sample views for context:
 
 ![Regime strategy equity curve](reports/strategy_backtest/plots/equity_curve.png)
 
 ![Exposure overlay](reports/strategy_backtest/plots/exposure_overlay.png)
 
+Plot notes:
+- Equity curve (full sample): expect lower terminal value but materially smaller drawdowns vs buy-and-hold.
+- Exposure overlay (full sample): long red blocks should align with reduced exposure plateaus.
+
 10) **Layered strategy (regime + trend) backtest**  
    The layered strategy combines volatility regimes with a 21‑day trend signal. The sweep winner uses an aggressive exposure map and daily rebalancing. It achieves annual return 0.1825, annual vol 0.0951, Sharpe 1.9205, and max drawdown -0.0903, versus buy‑and‑hold at 0.1128 return, 0.1738 vol, and -0.3392 drawdown.  
+   Trend‑only baseline returns 0.1908 with vol 0.1090 and max drawdown -0.1527, so layered trades a bit of return for much smoother risk.  
    Interpretation: the trend layer adds return while regimes cap risk, producing both higher CAGR and lower drawdown in this sample. See [reports/strategy_layered/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md) for full comparisons and diagnostics.
 
 Key short‑horizon visuals (last 12 months, rebased to the same start):
@@ -335,24 +371,40 @@ The exposure overlay shows how trend and regime signals combine to set exposure.
 
 ![Layered exposure overlay (last year)](reports/strategy_layered/plots/exposure_overlay_last_year.png)
 
+Plot notes:
+- Equity curve (last year): layered should recover faster than buy-and-hold if trend re-risking is working.
+- Exposure overlay (last year): exposure reacts to both trend shifts and regime changes, not just volatility.
+
 Full‑sample views for context:
 
 ![Layered strategy equity curve](reports/strategy_layered/plots/equity_curve.png)
 
 ![Layered exposure overlay](reports/strategy_layered/plots/exposure_overlay.png)
 
+Plot notes:
+- Equity curve (full sample): layered should compound faster while keeping drawdowns shallower.
+- Exposure overlay (full sample): green trend regimes with low vol should map to higher exposure.
+
 11) **Layered diagnostics and alpha/beta**  
-   Rolling diagnostics confirm the layered edge is persistent, not a one‑off spike: 1Y/3Y rolling CAGR stays above the benchmark for most of the sample, and rolling max drawdown remains materially lower than buy‑and‑hold. Alpha/beta computed on simple returns show annualized alpha 0.1290 (net 0.1191 at 5 bps) with beta ~0.45, meaning the strategy delivers excess return with lower market exposure.  
+   Rolling diagnostics confirm the layered edge is persistent, not a one‑off spike: 1Y/3Y rolling CAGR stays above the benchmark for most of the sample, and rolling max drawdown remains materially lower than buy‑and‑hold. The comparison plot includes trend‑only and regime‑only baselines to isolate incremental value. Alpha/beta computed on simple returns show annualized alpha 0.1290 (net 0.1191 at 5 bps) with beta ~0.45, meaning the strategy delivers excess return with lower market exposure.  
    Turnover is moderate (avg daily turnover 0.0788, annualized 19.86), with an estimated annual cost drag of ~0.0099 at 5 bps. The cost sensitivity plot shows a roughly linear decline in net return as costs rise.
 
 Key diagnostics (full sample):
 
-![Layered vs regime vs benchmark](reports/strategy_layered/plots/equity_curve_compare.png)
+![Layered vs trend-only vs regime vs benchmark](reports/strategy_layered/plots/equity_curve_compare.png)
 ![Rolling CAGR](reports/strategy_layered/plots/rolling_cagr.png)
 ![Rolling drawdown](reports/strategy_layered/plots/rolling_drawdown.png)
 ![Rolling alpha/beta](reports/strategy_layered/plots/rolling_alpha_beta.png)
 ![Turnover distribution](reports/strategy_layered/plots/turnover_hist.png)
 ![Cost sensitivity](reports/strategy_layered/plots/cost_sensitivity.png)
+
+Plot notes:
+- Equity curve comparison: trend-only usually tops returns; layered trades some return for smoother risk.
+- Rolling CAGR: layered stays above benchmark in most windows; trend-only is higher but noisier.
+- Rolling drawdown: layered drawdowns are consistently shallower than benchmark and trend-only.
+- Rolling alpha/beta: layered alpha is positive for long stretches while beta stays below 1.0.
+- Turnover distribution: most days show low turnover with occasional spikes during regime or trend flips.
+- Cost sensitivity: net return and Sharpe decline roughly linearly with higher cost bps.
 
 12) **GBM forward test (synthetic paths)**  
    Forward simulations using geometric Brownian motion provide a rough sanity check across 1Y/3Y/5Y horizons. The layered strategy, regime‑only baseline, and buy‑and‑hold are all evaluated on identical simulated paths. This is not a realistic regime model, but it helps test robustness under a simple stochastic assumption.  
@@ -364,6 +416,12 @@ GBM diagnostics (synthetic):
 ![GBM max drawdown distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_drawdown_dist_1y.png)
 ![GBM alpha distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_alpha_dist_1y.png)
 ![GBM outperformance (1Y)](reports/strategy_layered_gbm/plots/gbm_outperformance_1y.png)
+
+Plot notes:
+- Return distribution: a right shift for layered vs benchmark implies higher outperformance odds under GBM.
+- Drawdown distribution: layered should cluster toward smaller drawdowns if exposure control helps.
+- Alpha distribution: mass above zero indicates positive alpha frequency in simulated paths.
+- Outperformance: values above 0.5 indicate more than half the paths beat the benchmark.
 
 ## Actionable Next Steps
 

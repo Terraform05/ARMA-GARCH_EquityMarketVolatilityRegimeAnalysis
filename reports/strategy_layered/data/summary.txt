@@ -18,6 +18,15 @@ Regime-only strategy:
   alpha (annual): 0.0119
   beta: 0.4195
 
+Trend-only strategy:
+  annual return: 0.1908
+  annual vol: 0.1090
+  sharpe: 1.7503
+  max drawdown: -0.1527
+  alpha (annual): 0.1231
+  beta: 0.5763
+  exposure map: {'strong_up': 1.0, 'neutral': 0.7000000000000001, 'strong_down': 0.39999999999999997}
+
 Benchmark (buy-and-hold):
   annual return: 0.1128
   annual vol: 0.1738

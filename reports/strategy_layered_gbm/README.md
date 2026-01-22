@@ -69,6 +69,9 @@ Plots:
 ## Plot-by-Plot Interpretation (Detailed)
 
 ### `plots/gbm_return_dist_1y.png`
+![GBM annual return distribution (1Y)](plots/gbm_return_dist_1y.png)
+
+Plot notes:
 - Shows the 1‑year annual return distribution across simulated paths.
 - A rightward shift of the layered distribution vs benchmark indicates a higher
   likelihood of outperformance in GBM paths.
@@ -76,58 +79,91 @@ Plots:
   a constant‑volatility model.
 
 ### `plots/gbm_return_dist_3y.png`
+![GBM annual return distribution (3Y)](plots/gbm_return_dist_3y.png)
+
+Plot notes:
 - Longer horizon tightens return dispersion compared with 1Y.
 - Layered staying right‑shifted suggests its edge persists beyond short windows.
 - If layered and benchmark overlap heavily here, the edge may be short‑term only.
 
 ### `plots/gbm_return_dist_5y.png`
+![GBM annual return distribution (5Y)](plots/gbm_return_dist_5y.png)
+
+Plot notes:
 - The 5Y horizon emphasizes compounding differences between strategies.
 - A persistent right shift for layered indicates robust multi‑year advantage.
 - A left shift would imply the trend layer fails under GBM assumptions.
 
 ### `plots/gbm_drawdown_dist_1y.png`
+![GBM max drawdown distribution (1Y)](plots/gbm_drawdown_dist_1y.png)
+
+Plot notes:
 - Compares 1Y max drawdown distributions across strategies.
 - Layered skewed toward smaller drawdowns implies better risk control.
 - Regime-only should sit between layered and benchmark if it is effective.
 
 ### `plots/gbm_drawdown_dist_3y.png`
+![GBM max drawdown distribution (3Y)](plots/gbm_drawdown_dist_3y.png)
+
+Plot notes:
 - Multi‑year drawdowns grow larger in magnitude for all strategies.
 - Layered maintaining a tighter drawdown distribution is evidence of regime
   throttling even under GBM.
 - If benchmark and layered overlap, risk control may be path‑dependent.
 
 ### `plots/gbm_drawdown_dist_5y.png`
+![GBM max drawdown distribution (5Y)](plots/gbm_drawdown_dist_5y.png)
+
+Plot notes:
 - Drawdown dispersion typically widens with horizon length.
 - Layered’s tail should be less extreme than benchmark if the exposure map is
   effective in simulated stress.
 - Regime-only helps isolate the benefit of volatility regimes alone.
 
 ### `plots/gbm_alpha_dist_1y.png`
+![GBM alpha distribution (1Y)](plots/gbm_alpha_dist_1y.png)
+
+Plot notes:
 - 1Y alpha distribution shows the probability of positive annualized alpha.
 - A higher mass above zero for layered means frequent outperformance vs beta.
 - Regime-only centered near zero indicates limited alpha generation.
 
 ### `plots/gbm_alpha_dist_3y.png`
+![GBM alpha distribution (3Y)](plots/gbm_alpha_dist_3y.png)
+
+Plot notes:
 - Alpha distribution should narrow with longer windows.
 - A positive shift for layered suggests durable alpha under GBM.
 - If the distribution centers at zero, alpha is not robust to GBM assumptions.
 
 ### `plots/gbm_alpha_dist_5y.png`
+![GBM alpha distribution (5Y)](plots/gbm_alpha_dist_5y.png)
+
+Plot notes:
 - Long‑horizon alpha highlights whether the strategy adds value after compounding.
 - A positive median implies structural edge; a symmetric distribution implies
   no meaningful alpha under GBM.
 
 ### `plots/gbm_outperformance_1y.png`
+![GBM outperformance (1Y)](plots/gbm_outperformance_1y.png)
+
+Plot notes:
 - Shows the share of paths where strategy annual return beats benchmark.
 - Layered above 0.5 indicates more than half the paths outperform.
 - Regime-only below 0.5 indicates its defensive bias under GBM.
 
 ### `plots/gbm_outperformance_3y.png`
+![GBM outperformance (3Y)](plots/gbm_outperformance_3y.png)
+
+Plot notes:
 - Outperformance probability should stabilize with longer horizon.
 - A high layered bar indicates robust performance persistence.
 - If it drops below 0.5, short‑term gains may be mean‑reverting.
 
 ### `plots/gbm_outperformance_5y.png`
+![GBM outperformance (5Y)](plots/gbm_outperformance_5y.png)
+
+Plot notes:
 - Long‑horizon outperformance is the most stringent sanity check.
 - Layered staying above 0.5 suggests the edge is not path‑specific.
 - Benchmark dominance here would imply GBM paths favor pure beta.

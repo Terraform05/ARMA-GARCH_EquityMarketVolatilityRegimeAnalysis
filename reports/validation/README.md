@@ -15,14 +15,23 @@
 
 ## Figures
 
-The residual series shows remaining structure over time after the model fit.
-
 ![Residual series](plots/residuals_series.png)
 
-ACF plots reveal any remaining autocorrelation in residuals and squared residuals.
+Plot notes:
+- Residual spikes cluster around stress windows, indicating remaining structure after the fit.
+- The variance is not constant over time, which matches the significant ARCH test.
+- Use this to confirm the model is adequate for regimes, not for precise return prediction.
 
 ![Residual ACF](plots/residuals_acf.png)
 
-The Q‑Q plot checks whether residuals follow the assumed distribution.
+Plot notes:
+- Autocorrelation in residuals indicates the mean process is not fully captured.
+- Autocorrelation in squared residuals confirms lingering volatility structure.
+- If these tails were flat and near zero, the variance model would be closer to fully specified.
 
 ![Residual Q-Q](plots/residuals_qq.png)
+
+Plot notes:
+- Tail deviations from the diagonal indicate heavy tails relative to the assumed distribution.
+- A strong S-shape suggests skew or kurtosis that a normal error model misses.
+- This supports using a Student-t error distribution in variant testing.

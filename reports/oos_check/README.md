@@ -27,6 +27,9 @@
 
 ## Figures
 
-This plot shows the rolling 1-step forecast vs realized volatility for the selected variant.
-
 ![OOS rolling forecast](plots/forecast_vs_realized_rolling.png)
+
+Plot notes:
+- The forecast should rise and fall with realized volatility, even if levels differ.
+- Large persistent gaps indicate scaling issues or a mismatch between model and realized window.
+- Short spikes in realized vol that the model misses highlight limits of daily refits.

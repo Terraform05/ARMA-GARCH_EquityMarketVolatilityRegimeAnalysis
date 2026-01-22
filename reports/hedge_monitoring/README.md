@@ -37,10 +37,16 @@ Populated after running the pipeline (from `data/summary.txt`):
 
 ## Figures
 
-The hedge ratio chart highlights cheap vs expensive hedging windows.
-
 ![Hedge ratio](plots/hedge_ratio.png)
 
-This chart aligns VIX with realized volatility for context.
+Plot notes:
+- Spikes in the ratio mean hedging is expensive relative to recent realized risk.
+- Dips below the cheap threshold flag windows where hedges are relatively inexpensive.
+- Long stretches above the high threshold suggest persistent risk aversion or volatility risk premium.
 
 ![VIX vs realized](plots/vix_vs_realized.png)
+
+Plot notes:
+- VIX moving above realized vol indicates the market is pricing in higher future risk.
+- If VIX stays below realized vol, hedging is priced cheaply but may be underestimating risk.
+- Use this plot to validate that the ratio signal is not driven by data artifacts.

@@ -21,18 +21,30 @@
 
 ## Figures
 
-The regime scatter shows low/mid/high volatility states across time.
-
 ![Regime scatter](plots/regimes.png)
 
-This plot compares implied volatility (VIX) to realized volatility on the same scale.
+Plot notes:
+- The scatter bands show discrete regime blocks; long blocks indicate persistent volatility states.
+- Rapid color flipping signals short-lived volatility spikes that can whipsaw exposure.
+- Use this plot to sanity check whether regime changes align with known stress episodes.
 
 ![VIX vs realized](plots/vix_vs_realized.png)
 
-Window metrics show how the realized volatility window choice affects alignment with VIX.
+Plot notes:
+- VIX should generally lead or move in the same direction as realized volatility.
+- Persistent gaps imply the realized window is too slow (lags VIX) or too fast (overreacts).
+- Alignment supports using the chosen realized window for regime labeling.
 
 ![Window metrics](plots/realized_window_metrics.png)
 
-Regime outcomes summarize return, VIX, and drawdown differences by regime.
+Plot notes:
+- Correlation tends to improve with shorter windows but RMSE can worsen from noise.
+- The chosen window should sit near a stable tradeoff, not at an unstable extreme.
+- Use this to justify the selected window length in the pipeline.
 
 ![Regime outcomes](plots/regime_outcomes.png)
+
+Plot notes:
+- High-vol regimes should show larger drawdowns and lower returns if the labeling is sensible.
+- Low-vol regimes should show higher average returns and lower drawdowns.
+- If outcomes look similar across regimes, the regime split is not informative.

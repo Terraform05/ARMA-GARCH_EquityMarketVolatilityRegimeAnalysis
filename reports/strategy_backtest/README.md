@@ -25,6 +25,12 @@ The strategy uses the regime labels generated from the selected ARMA‑GARCH var
 
 ![Exposure overlay (last year)](plots/exposure_overlay_last_year.png)
 
+**Plot notes (last 12 months):**
+- Equity curve: the regime strategy line should dip less during the drawdown window, showing risk scaling in action.
+- Equity curve: if the regime line lags strongly during a sustained rally, the exposure map may be too defensive.
+- Exposure overlay: exposure steps down sharply when the regime strip turns red (high vol) and rises in green (low vol).
+- Exposure overlay: frequent flips between colors indicate noisy regimes; confirm they align with volatility spikes.
+
 ## Outputs
 
 - `data/summary.txt` for return/vol/sharpe/drawdown
@@ -61,6 +67,9 @@ Interpretation:
 
 ### `plots/rolling_alpha_beta.png`
 
+![Rolling alpha/beta](plots/rolling_alpha_beta.png)
+
+Plot notes:
 - Rolling alpha spends much of the sample near zero and dips negative during
   persistent bull markets, reflecting opportunity cost of reduced exposure.
 - Alpha spikes briefly around major volatility events, suggesting the overlay
@@ -97,3 +106,9 @@ The full‑sample equity curve shows whether the strategy reduces drawdowns and 
 The full‑sample exposure overlay highlights how the regime labels drive risk scaling over time: exposure rises in low‑volatility regimes and falls in high‑volatility regimes.
 
 ![Exposure overlay](plots/exposure_overlay.png)
+
+**Plot notes (full sample):**
+- Equity curve: the regime strategy should show shallower drawdowns but lower terminal value than buy‑and‑hold.
+- Exposure overlay: long red blocks (high vol) should correspond to reduced exposure plateaus.
+- Exposure overlay: extended green periods should map to higher exposure and faster compounding.
+- Equity curve: if the regime line diverges sharply only during a single period, investigate regime stability.

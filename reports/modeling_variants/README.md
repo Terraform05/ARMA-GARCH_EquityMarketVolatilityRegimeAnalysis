@@ -30,22 +30,37 @@ Note: BIC favors EGARCH_t for in-sample fit, while RMSE/QLIKE favor GARCH for re
 
 ## Figures
 
-The comparison chart overlays the top variants (by BIC) so you can see whether they move together or diverge during stress.
-
 ![Variant comparison](plots/variant_comparison.png)
 
-This chart compares each top variant to annualized realized volatility so you can see which model best tracks actual volatility levels.
+Plot notes:
+- The top variants move together most of the time, which means model choice is not a huge swing factor in calm periods.
+- Divergences around stress windows highlight where asymmetric or heavy-tail models react differently.
+- If a model consistently sits above/below peers, it may be systematically over- or under-estimating volatility.
 
 ![Variants vs realized](plots/variant_vs_realized.png)
 
-These bar charts show model selection criteria; more negative AIC/BIC values are better, and only relative differences matter.
+Plot notes:
+- The closest line to realized volatility (orange) indicates the best tracking model.
+- Look for phase alignment: peaks and troughs should occur at the same times, not just similar levels.
+- Persistent gaps show scale bias; a model that tracks direction but misses level may need rescaling.
 
 ![Variant metrics](plots/variant_metrics.png)
 
-This plot shows the preferred model’s conditional volatility path in annualized percent terms.
+Plot notes:
+- Lower (more negative) AIC/BIC is better; focus on relative gaps, not absolute values.
+- If two variants are close, prefer the one that also tracks realized volatility better.
+- Large gaps in BIC justify a more complex model; tiny gaps usually do not.
 
 ![Best variant volatility](plots/best_variant_volatility.png)
 
-This scatter compares in-sample fit (BIC) to realized-vol tracking (RMSE) so you can see the tradeoff directly.
+Plot notes:
+- The conditional volatility path should spike during known stress windows and mean-revert afterward.
+- A smooth, lagged response suggests a model that is too slow for risk monitoring.
+- Use this line as the baseline input to regime classification.
 
 ![BIC vs tracking](plots/bic_vs_tracking.png)
+
+Plot notes:
+- Points with lower BIC and lower RMSE are ideal but often do not exist simultaneously.
+- A model with strong BIC but weak RMSE is good for in-sample fit, not for tracking.
+- This tradeoff plot is the fastest way to decide whether to optimize for fit or for tracking.

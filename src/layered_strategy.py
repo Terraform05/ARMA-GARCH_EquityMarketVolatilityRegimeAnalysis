@@ -15,6 +15,13 @@ DEFAULT_EXPOSURE_MATRIX: dict[str, dict[str, float]] = {
     "high": {"strong_up": 0.7, "neutral": 0.4, "strong_down": 0.1},
 }
 
+REGIME_EXPOSURE_MAPS: dict[str, dict[str, float]] = {
+    "default": {"low": 1.0, "mid": 0.75, "high": 0.25},
+    "sharpe_best": {"low": 1.0, "mid": 1.0, "high": 0.5},
+    "aggressive": {"low": 1.25, "mid": 1.0, "high": 0.5},
+    "defensive": {"low": 1.0, "mid": 0.5, "high": 0.0},
+}
+
 
 @dataclass
 class LayeredStrategyResults:
@@ -178,6 +185,8 @@ def run_layered_strategy_backtest(
     )
 
     _apply_regime_only(frame)
+    trend_only_map = _derive_trend_only_map(exposure_matrix or DEFAULT_EXPOSURE_MATRIX)
+    _apply_trend_only(frame, trend_only_map)
     stats = _compute_stats(frame["strategy_log_return"])
     stats_net = _compute_stats(frame["strategy_log_return_net"])
     benchmark_stats = _compute_stats(frame["log_return"])
@@ -189,6 +198,10 @@ def run_layered_strategy_backtest(
     )
     alpha_beta_regime = _compute_alpha_beta(
         frame["regime_return"], frame["benchmark_return"]
+    )
+    stats_trend = _compute_stats(frame["trend_only_log_return"])
+    alpha_beta_trend = _compute_alpha_beta(
+        frame["trend_only_return"], frame["benchmark_return"]
     )
     avg_turnover = float(frame["turnover"].mean())
     annual_turnover = avg_turnover * 252
@@ -202,6 +215,9 @@ def run_layered_strategy_backtest(
         alpha_beta=alpha_beta,
         alpha_beta_net=alpha_beta_net,
         alpha_beta_regime=alpha_beta_regime,
+        stats_trend=stats_trend,
+        alpha_beta_trend=alpha_beta_trend,
+        trend_only_map=trend_only_map,
         trend_window=trend_window,
         trend_z_window=trend_z_window,
         trend_threshold=trend_threshold,
@@ -243,6 +259,10 @@ def run_layered_strategy_backtest(
             "strategy_return_net",
             "benchmark_return",
             "regime_return",
+            "trend_only_exposure",
+            "trend_only_equity",
+            "trend_only_drawdown",
+            "trend_only_return",
         ]
     ].to_csv(data_dir / "layered_strategy_equity.csv", index=False)
 
@@ -250,6 +270,7 @@ def run_layered_strategy_backtest(
     _write_exposure_stats(frame, data_dir)
     _write_turnover_stats(frame, data_dir)
     _write_cost_sensitivity(frame, data_dir)
+    _write_regime_map_comparison(frame, data_dir)
 
     _plot_equity_curve(frame, plots_dir, suffix="")
     _plot_equity_curve(_last_year_slice(frame), plots_dir, suffix="_last_year")
@@ -447,6 +468,9 @@ def _write_summary(
     alpha_beta: AlphaBeta,
     alpha_beta_net: AlphaBeta,
     alpha_beta_regime: AlphaBeta,
+    stats_trend: LayeredStrategyResults,
+    alpha_beta_trend: AlphaBeta,
+    trend_only_map: dict[str, float],
     trend_window: int,
     trend_z_window: int,
     trend_threshold: float,
@@ -487,6 +511,15 @@ def _write_summary(
         "Regime-only strategy:",
         f"  alpha (annual): {alpha_beta_regime.alpha_annual:.4f}",
         f"  beta: {alpha_beta_regime.beta:.4f}",
+        "",
+        "Trend-only strategy:",
+        f"  annual return: {stats_trend.annual_return:.4f}",
+        f"  annual vol: {stats_trend.annual_vol:.4f}",
+        f"  sharpe: {stats_trend.sharpe:.4f}",
+        f"  max drawdown: {stats_trend.max_drawdown:.4f}",
+        f"  alpha (annual): {alpha_beta_trend.alpha_annual:.4f}",
+        f"  beta: {alpha_beta_trend.beta:.4f}",
+        f"  exposure map: {trend_only_map}",
         "",
         "Benchmark (buy-and-hold):",
         f"  annual return: {benchmark_stats.annual_return:.4f}",
@@ -572,10 +605,12 @@ def _plot_equity_curve_compare(
     benchmark = frame["benchmark_equity"]
     layered = frame["strategy_equity"]
     regime = frame["regime_equity"]
+    trend_only = frame["trend_only_equity"]
     if len(frame) > 0 and suffix.endswith("last_year"):
         benchmark = benchmark / benchmark.iloc[0]
         layered = layered / layered.iloc[0]
         regime = regime / regime.iloc[0]
+        trend_only = trend_only / trend_only.iloc[0]
     ax.plot(
         frame["date"],
         benchmark,
@@ -589,6 +624,13 @@ def _plot_equity_curve_compare(
         color="#7E57C2",
         linewidth=0.9,
         label="Regime Strategy",
+    )
+    ax.plot(
+        frame["date"],
+        trend_only,
+        color="#26A69A",
+        linewidth=0.9,
+        label="Trend-Only Strategy",
     )
     ax.plot(
         frame["date"],
@@ -633,9 +675,11 @@ def _plot_rolling_cagr(frame: pd.DataFrame, output_dir: Path) -> None:
     for ax, (window, label) in zip(axes, windows):
         layered = _rolling_cagr(frame["strategy_log_return"], window)
         regime = _rolling_cagr(frame["regime_log_return"], window)
+        trend_only = _rolling_cagr(frame["trend_only_log_return"], window)
         benchmark = _rolling_cagr(frame["log_return"], window)
         ax.plot(frame["date"], benchmark, color="black", linewidth=0.9, label="Benchmark")
         ax.plot(frame["date"], regime, color="#7E57C2", linewidth=0.9, label="Regime")
+        ax.plot(frame["date"], trend_only, color="#26A69A", linewidth=0.9, label="Trend-Only")
         ax.plot(frame["date"], layered, color="slateblue", linewidth=0.9, label="Layered")
         ax.set_title(f"Rolling CAGR ({label})")
         ax.set_ylabel("CAGR")
@@ -652,9 +696,11 @@ def _plot_rolling_drawdown(frame: pd.DataFrame, output_dir: Path) -> None:
     for ax, (window, label) in zip(axes, windows):
         layered = _rolling_max_drawdown(frame["strategy_equity"], window)
         regime = _rolling_max_drawdown(frame["regime_equity"], window)
+        trend_only = _rolling_max_drawdown(frame["trend_only_equity"], window)
         benchmark = _rolling_max_drawdown(frame["benchmark_equity"], window)
         ax.plot(frame["date"], benchmark, color="black", linewidth=0.9, label="Benchmark")
         ax.plot(frame["date"], regime, color="#7E57C2", linewidth=0.9, label="Regime")
+        ax.plot(frame["date"], trend_only, color="#26A69A", linewidth=0.9, label="Trend-Only")
         ax.plot(frame["date"], layered, color="slateblue", linewidth=0.9, label="Layered")
         ax.set_title(f"Rolling Max Drawdown ({label})")
         ax.set_ylabel("Max Drawdown")
@@ -691,6 +737,9 @@ def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
     regime = _rolling_alpha_beta(
         frame["regime_return"], frame["benchmark_return"], window
     )
+    trend_only = _rolling_alpha_beta(
+        frame["trend_only_return"], frame["benchmark_return"], window
+    )
 
     fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
     axes[0].plot(
@@ -706,6 +755,13 @@ def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
         color="#7E57C2",
         linewidth=0.9,
         label="Regime",
+    )
+    axes[0].plot(
+        frame["date"],
+        trend_only["alpha_annual"],
+        color="#26A69A",
+        linewidth=0.9,
+        label="Trend-Only",
     )
     axes[0].axhline(0.0, color="#616161", linewidth=0.8)
     axes[0].set_title("Rolling Alpha (1Y, Annualized)")
@@ -725,6 +781,13 @@ def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
         color="#7E57C2",
         linewidth=0.9,
         label="Regime",
+    )
+    axes[1].plot(
+        frame["date"],
+        trend_only["beta"],
+        color="#26A69A",
+        linewidth=0.9,
+        label="Trend-Only",
     )
     axes[1].axhline(1.0, color="#616161", linewidth=0.8)
     axes[1].set_title("Rolling Beta (1Y)")
@@ -863,6 +926,30 @@ def _apply_regime_only(frame: pd.DataFrame) -> None:
     frame["regime_drawdown"] = frame["regime_equity"] / frame["regime_peak"] - 1.0
 
 
+def _derive_trend_only_map(
+    exposure_matrix: dict[str, dict[str, float]]
+) -> dict[str, float]:
+    return {
+        state: float(
+            np.mean([exposure_matrix[regime][state] for regime in exposure_matrix])
+        )
+        for state in TREND_STATES
+    }
+
+
+def _apply_trend_only(frame: pd.DataFrame, trend_only_map: dict[str, float]) -> None:
+    frame["trend_only_exposure"] = frame["trend_state"].map(trend_only_map).fillna(0.0)
+    frame["trend_only_log_return"] = (
+        frame["log_return"] * frame["trend_only_exposure"]
+    )
+    frame["trend_only_return"] = np.exp(frame["trend_only_log_return"]) - 1.0
+    frame["trend_only_equity"] = np.exp(frame["trend_only_log_return"].cumsum())
+    frame["trend_only_peak"] = frame["trend_only_equity"].cummax()
+    frame["trend_only_drawdown"] = (
+        frame["trend_only_equity"] / frame["trend_only_peak"] - 1.0
+    )
+
+
 def _write_state_performance(frame: pd.DataFrame, data_dir: Path) -> None:
     perf = (
         frame.groupby(["regime", "trend_state"], as_index=False)
@@ -904,3 +991,21 @@ def _write_cost_sensitivity(frame: pd.DataFrame, data_dir: Path) -> None:
             }
         )
     pd.DataFrame(rows).to_csv(data_dir / "cost_sensitivity.csv", index=False)
+
+
+def _write_regime_map_comparison(frame: pd.DataFrame, data_dir: Path) -> None:
+    rows = []
+    for name, mapping in REGIME_EXPOSURE_MAPS.items():
+        exposure = frame["regime"].map(mapping).fillna(0.0)
+        strat_ret = frame["log_return"] * exposure
+        stats = _compute_stats(strat_ret)
+        rows.append(
+            {
+                "map_name": name,
+                "annual_return": stats.annual_return,
+                "annual_vol": stats.annual_vol,
+                "sharpe": stats.sharpe,
+                "max_drawdown": stats.max_drawdown,
+            }
+        )
+    pd.DataFrame(rows).to_csv(data_dir / "regime_map_comparison.csv", index=False)
