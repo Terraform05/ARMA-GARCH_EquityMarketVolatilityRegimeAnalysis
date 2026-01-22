@@ -5,10 +5,10 @@ Out-of-sample check:
   ARMA order: (2, 0)
 
 OOS metrics (static forecast vs realized):
-  corr:  0.1610
-  rmse:  8.2615
+  corr:  0.1653
+  rmse:  10.3584
   available: True
 
 OOS metrics (rolling 1-step vs realized):
-  corr:  0.9196
-  rmse:  3.2105
+  corr:  0.9055
+  rmse:  3.4011

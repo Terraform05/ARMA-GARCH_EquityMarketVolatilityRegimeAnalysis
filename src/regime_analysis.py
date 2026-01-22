@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from src.plotting import format_date_axis, save_fig
 
 @dataclass
 class RegimeResults:
@@ -107,9 +108,8 @@ def _plot_regimes(data: pd.DataFrame, output_dir: Path) -> None:
     ax.set_ylabel("Conditional Volatility")
     ax.set_xlabel("Date")
     ax.legend(loc="upper right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / "regimes.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "regimes.png")
 
 
 def _plot_vix_vs_realized(
@@ -135,9 +135,8 @@ def _plot_vix_vs_realized(
     ax.set_ylabel("Annualized Volatility (%)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / "vix_vs_realized.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "vix_vs_realized.png")
 
 
 def _select_realized_window(
@@ -186,9 +185,7 @@ def _plot_window_metrics(metrics: pd.DataFrame, output_dir: Path) -> None:
     axes[1].set_xlabel("Window (Days)")
     axes[1].set_ylabel("RMSE")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "realized_window_metrics.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "realized_window_metrics.png")
 
 
 def _write_regime_outcomes(
@@ -232,6 +229,4 @@ def _plot_regime_outcomes(outcomes: pd.DataFrame, output_dir: Path) -> None:
     axes[2].set_ylabel("Drawdown")
     axes[2].set_xlabel("Regime")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "regime_outcomes.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "regime_outcomes.png")

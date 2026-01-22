@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.plotting import format_date_axis, save_fig
 
 @dataclass
 class AlphaBeta:
@@ -189,9 +190,8 @@ def _plot_equity_curve(frame: pd.DataFrame, output_dir: Path, suffix: str) -> No
     ax.set_ylabel("Equity (Indexed)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper left", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / f"equity_curve{suffix}.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / f"equity_curve{suffix}.png")
 
 
 def _rolling_alpha_beta(
@@ -244,9 +244,8 @@ def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
     axes[1].legend(loc="upper left", frameon=False)
     axes[1].set_xlabel("Date")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "rolling_alpha_beta.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(axes[-1])
+    save_fig(fig, output_dir / "rolling_alpha_beta.png")
 
 
 def _plot_exposure_overlay(
@@ -289,9 +288,8 @@ def _plot_exposure_overlay(
     ax_bottom.set_yticks([])
     ax_bottom.set_xlabel("Date")
     ax_bottom.set_title("Regime (low / mid / high)")
-    fig.tight_layout()
-    fig.savefig(output_dir / f"exposure_overlay{suffix}.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax_bottom)
+    save_fig(fig, output_dir / f"exposure_overlay{suffix}.png")
 
 
 def _last_year_slice(frame: pd.DataFrame) -> pd.DataFrame:

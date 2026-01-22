@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from src.plotting import save_fig
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_DIR = PROJECT_ROOT / "reports" / "strategy_regime_trend_sweep"
@@ -132,9 +134,7 @@ def _plot_scatter(df: pd.DataFrame, output_path: Path) -> None:
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.legend(loc="lower right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_path)
 
 
 def _plot_top_bars(df: pd.DataFrame, output_path: Path, top_n: int) -> None:
@@ -154,9 +154,7 @@ def _plot_top_bars(df: pd.DataFrame, output_path: Path, top_n: int) -> None:
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.invert_yaxis()
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_path)
 
 
 def _plot_heatmap(df: pd.DataFrame, output_path: Path) -> None:
@@ -206,9 +204,7 @@ def _plot_heatmap(df: pd.DataFrame, output_path: Path) -> None:
                     color="black",
                 )
 
-    fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_path)
 
 
 def _write_summary(df: pd.DataFrame, output_path: Path) -> None:

@@ -12,7 +12,14 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
 from scripts.prepare_data import run_data_prep
-from src.config import BEST_VARIANT_FILE, VARIANT_METRICS_FILE
+from src.config import (
+    BEST_VARIANT_FILE,
+    VARIANT_BIC_METRICS_FILE,
+    VARIANT_METRICS_FILE,
+    VARIANT_SELECTION,
+    RMSE_CLOSE_PCT,
+    BIC_IMPROVEMENT,
+)
 from src.diagnostics import run_diagnostics
 from src.garch_utils import fit_garch_variant, get_best_variant
 from src.hedge_monitoring import run_hedge_monitoring
@@ -141,11 +148,19 @@ def run_recent_oos_workflow() -> None:
         if run_model_variants_flag
         else VARIANT_METRICS_FILE
     )
+    bic_metrics_path = (
+        run_dir / "modeling_variants" / "data" / "variant_metrics.csv"
+        if run_model_variants_flag
+        else VARIANT_BIC_METRICS_FILE
+    )
     variant = get_best_variant(
         best_variant_path,
         metrics_path,
+        bic_metrics_path=bic_metrics_path,
         default="GARCH",
-        mode="tracking",
+        mode=VARIANT_SELECTION,
+        rmse_close_pct=RMSE_CLOSE_PCT,
+        bic_improvement=BIC_IMPROVEMENT,
     )
 
     if run_modeling_flag:

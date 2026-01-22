@@ -16,6 +16,7 @@ from scripts.run_regime_trend_sweep import (
     default_sweep_config,
     run_regime_trend_sweep,
 )
+from scripts.run_regime_series import run_regime_series_job
 
 
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "configs" / "regime_trend_best.json"
@@ -99,6 +100,9 @@ def run_optimization(
     results_path = sweep_cfg.output_dir / "data" / "sweep_results.csv"
 
     if not skip_sweep:
+        if not sweep_cfg.regime_csv.exists():
+            print("Regime series missing; generating it before the sweep.")
+            run_regime_series_job()
         run_regime_trend_sweep(sweep_cfg)
 
     if not results_path.exists():

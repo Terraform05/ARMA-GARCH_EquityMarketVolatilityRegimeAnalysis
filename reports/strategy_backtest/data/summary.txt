@@ -1,19 +1,19 @@
 Strategy backtest:
-  annual return: 0.0614
+  annual return: 0.0613
   annual vol: 0.0872
-  sharpe: 0.7047
+  sharpe: 0.7033
   max drawdown: -0.1234
   alpha (annual): 0.0114
   beta: 0.4201
 
 Benchmark (buy-and-hold):
-  annual return: 0.1130
+  annual return: 0.1129
   annual vol: 0.1737
-  sharpe: 0.6508
+  sharpe: 0.6499
   max drawdown: -0.3392
 
   excess return: -0.0516
 
 Best candidate by Sharpe:
   exposure map: {'low': 1.0, 'mid': 1.0, 'high': 0.5}
-  sharpe: 0.7442
+  sharpe: 0.7429

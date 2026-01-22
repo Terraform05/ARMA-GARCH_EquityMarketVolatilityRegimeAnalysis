@@ -8,8 +8,16 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
-from src.garch_utils import fit_garch_variant
+from src.config import (
+    BIC_IMPROVEMENT,
+    RMSE_CLOSE_PCT,
+    VARIANT_SELECTION,
+    VARIANT_BIC_METRICS_FILE,
+    VARIANT_METRICS_FILE,
+)
+from src.garch_utils import fit_garch_variant, get_best_variant
 from src.modeling import select_arma_order
+from src.plotting import format_date_axis, save_fig
 
 
 @dataclass
@@ -74,24 +82,59 @@ def run_model_variants(
     params_df = pd.DataFrame(params_rows)
     params_df.to_csv(data_dir / "variant_params.csv", index=False)
 
-    best_variant = metrics_df.iloc[0]["variant"]
-    (data_dir / "best_variant.txt").write_text(
-        f"ARMA order: {arma_order}\nBest variant by BIC: {best_variant}\n",
-        encoding="utf-8",
-    )
-
     vol_df = pd.concat(vol_series, axis=1)
     vol_df.index.name = "date"
     vol_df.reset_index().to_csv(data_dir / "variant_volatility.csv", index=False)
 
     annualized = vol_df * (252**0.5) * 100
-    _plot_best_variant(annualized, best_variant, plots_dir)
+    _write_variant_realized_metrics(annualized, data, data_dir)
+
+    best_by_bic = metrics_df.iloc[0]["variant"]
+    best_by_tracking = get_best_variant(
+        data_dir / "best_variant.txt",
+        metrics_path=VARIANT_METRICS_FILE,
+        bic_metrics_path=VARIANT_BIC_METRICS_FILE,
+        mode="tracking",
+    )
+    best_by_hybrid = get_best_variant(
+        data_dir / "best_variant.txt",
+        metrics_path=VARIANT_METRICS_FILE,
+        bic_metrics_path=VARIANT_BIC_METRICS_FILE,
+        mode="hybrid",
+        rmse_close_pct=RMSE_CLOSE_PCT,
+        bic_improvement=BIC_IMPROVEMENT,
+    )
+    active_best = get_best_variant(
+        data_dir / "best_variant.txt",
+        metrics_path=VARIANT_METRICS_FILE,
+        bic_metrics_path=VARIANT_BIC_METRICS_FILE,
+        mode=VARIANT_SELECTION,
+        rmse_close_pct=RMSE_CLOSE_PCT,
+        bic_improvement=BIC_IMPROVEMENT,
+    )
+
+    (data_dir / "best_variant.txt").write_text(
+        "\n".join(
+            [
+                f"ARMA order: {arma_order}",
+                f"Best variant by BIC: {best_by_bic}",
+                f"Best variant by tracking (rmse): {best_by_tracking}",
+                f"Best variant by hybrid: {best_by_hybrid}",
+                f"Best variant (active): {active_best}",
+                f"Hybrid thresholds: rmse_close_pct={RMSE_CLOSE_PCT}, bic_improvement={BIC_IMPROVEMENT}",
+                f"Active selection mode: {VARIANT_SELECTION}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    _plot_best_variant(annualized, active_best, plots_dir)
     _plot_variant_comparison(
         annualized, metrics_df.head(3)["variant"].tolist(), plots_dir
     )
     _plot_variants_vs_realized(annualized, data, metrics_df, plots_dir)
     _plot_variant_metrics(metrics_df, plots_dir)
-    _write_variant_realized_metrics(annualized, data, data_dir)
     _plot_bic_vs_tracking(data_dir, plots_dir)
 
 
@@ -101,9 +144,8 @@ def _plot_best_variant(vol_df: pd.DataFrame, best_variant: str, output_dir: Path
     ax.set_title(f"Conditional Volatility (Annualized %): {best_variant}")
     ax.set_ylabel("Volatility (%)")
     ax.set_xlabel("Date")
-    fig.tight_layout()
-    fig.savefig(output_dir / "best_variant_volatility.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "best_variant_volatility.png")
 
 
 def _plot_variant_comparison(
@@ -116,9 +158,8 @@ def _plot_variant_comparison(
     ax.set_ylabel("Volatility (%)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / "variant_comparison.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "variant_comparison.png")
 
 
 def _plot_variants_vs_realized(
@@ -144,9 +185,8 @@ def _plot_variants_vs_realized(
     ax.set_ylabel("Volatility (%)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / "variant_vs_realized.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "variant_vs_realized.png")
 
 
 def _plot_variant_metrics(metrics_df: pd.DataFrame, output_dir: Path) -> None:
@@ -163,9 +203,7 @@ def _plot_variant_metrics(metrics_df: pd.DataFrame, output_dir: Path) -> None:
     axes[1].set_xlabel("Variant")
     axes[1].tick_params(axis="x", rotation=30)
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "variant_metrics.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "variant_metrics.png")
 
 
 def _write_variant_realized_metrics(
@@ -204,6 +242,4 @@ def _plot_bic_vs_tracking(data_dir: Path, plots_dir: Path) -> None:
     ax.set_title("BIC vs Realized-Vol RMSE")
     ax.set_xlabel("BIC (lower is better)")
     ax.set_ylabel("RMSE (lower is better)")
-    fig.tight_layout()
-    fig.savefig(plots_dir / "bic_vs_tracking.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, plots_dir / "bic_vs_tracking.png")

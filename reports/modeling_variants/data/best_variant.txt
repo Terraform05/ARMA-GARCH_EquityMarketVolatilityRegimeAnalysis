@@ -1,2 +1,7 @@
 ARMA order: (2, 0)
 Best variant by BIC: EGARCH_t
+Best variant by tracking (rmse): GARCH_t
+Best variant by hybrid: GARCH_t
+Best variant (active): GARCH_t
+Hybrid thresholds: rmse_close_pct=0.02, bic_improvement=10.0
+Active selection mode: hybrid

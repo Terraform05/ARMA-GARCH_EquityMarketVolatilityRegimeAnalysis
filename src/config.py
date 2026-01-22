@@ -19,6 +19,10 @@ OUTPUT_CSV = PROCESSED_DIR / "spx_vix_aligned.csv"
 MODEL_VARIANTS_DIR = PROJECT_ROOT / "reports" / "modeling_variants"
 BEST_VARIANT_FILE = MODEL_VARIANTS_DIR / "data" / "best_variant.txt"
 VARIANT_METRICS_FILE = MODEL_VARIANTS_DIR / "data" / "variant_realized_metrics.csv"
+VARIANT_BIC_METRICS_FILE = MODEL_VARIANTS_DIR / "data" / "variant_metrics.csv"
 
-# Variant selection mode: "bic" (default) or "tracking"
-VARIANT_SELECTION = "tracking" #"bic"
+# Variant selection mode: "bic", "tracking", or "hybrid"
+VARIANT_SELECTION = "hybrid"
+# Hybrid selection thresholds
+RMSE_CLOSE_PCT = 0.02  # within 2% of best RMSE
+BIC_IMPROVEMENT = 10.0  # at least 10 lower BIC to prefer simpler model

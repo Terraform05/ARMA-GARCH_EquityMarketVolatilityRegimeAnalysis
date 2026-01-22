@@ -10,6 +10,8 @@ from statsmodels.graphics.gofplots import qqplot
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.stats.diagnostic import acorr_ljungbox, het_arch
 
+from src.plotting import save_fig
+
 
 @dataclass
 class ValidationResults:
@@ -83,9 +85,7 @@ def _plot_residuals(residuals: pd.Series, output_dir: Path) -> None:
     ax.set_title("Standardized Residuals")
     ax.set_ylabel("Residual")
     ax.set_xlabel("Index")
-    fig.tight_layout()
-    fig.savefig(output_dir / "residuals_series.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "residuals_series.png")
 
 
 def _plot_residual_acf(residuals: pd.Series, output_dir: Path, lags: int) -> None:
@@ -98,9 +98,7 @@ def _plot_residual_acf(residuals: pd.Series, output_dir: Path, lags: int) -> Non
     axes[1].set_title("ACF: Squared Residuals")
     axes[1].set_xlabel("Lag")
     axes[1].set_ylabel("Autocorrelation")
-    fig.tight_layout()
-    fig.savefig(output_dir / "residuals_acf.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "residuals_acf.png")
 
 
 def _plot_residual_qq(residuals: pd.Series, output_dir: Path) -> None:
@@ -109,6 +107,4 @@ def _plot_residual_qq(residuals: pd.Series, output_dir: Path) -> None:
     plt.title("Q-Q Plot: Standardized Residuals")
     plt.xlabel("Theoretical Quantiles")
     plt.ylabel("Sample Quantiles")
-    fig.tight_layout()
-    fig.savefig(output_dir / "residuals_qq.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "residuals_qq.png")

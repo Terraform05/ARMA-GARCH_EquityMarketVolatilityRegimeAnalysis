@@ -14,8 +14,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.config import (
     BEST_VARIANT_FILE,
     OUTPUT_CSV,
+    VARIANT_BIC_METRICS_FILE,
     VARIANT_METRICS_FILE,
     VARIANT_SELECTION,
+    RMSE_CLOSE_PCT,
+    BIC_IMPROVEMENT,
 )
 from src.garch_utils import fit_garch_variant, get_best_variant
 from src.modeling import select_arma_order
@@ -38,7 +41,12 @@ def run_validation_job(
 
     resid = arma_result.resid.dropna()
     chosen_variant = variant or get_best_variant(
-        BEST_VARIANT_FILE, VARIANT_METRICS_FILE, mode=VARIANT_SELECTION
+        BEST_VARIANT_FILE,
+        VARIANT_METRICS_FILE,
+        bic_metrics_path=VARIANT_BIC_METRICS_FILE,
+        mode=VARIANT_SELECTION,
+        rmse_close_pct=RMSE_CLOSE_PCT,
+        bic_improvement=BIC_IMPROVEMENT,
     )
     garch_result = fit_garch_variant(resid, chosen_variant)
 

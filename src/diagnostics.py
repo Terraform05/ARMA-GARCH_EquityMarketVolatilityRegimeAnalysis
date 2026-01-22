@@ -9,6 +9,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.stats.diagnostic import het_arch
 from statsmodels.tsa.stattools import adfuller
 
+from src.plotting import format_date_axis, save_fig
 
 @dataclass
 class DiagnosticResults:
@@ -78,9 +79,8 @@ def _plot_series(data: pd.DataFrame, output_dir: Path) -> None:
     axes[1].set_ylabel("Squared Return")
     axes[1].set_xlabel("Date")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "returns_series.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(axes[-1])
+    save_fig(fig, output_dir / "returns_series.png")
 
 
 def _plot_acf_pacf(returns: pd.Series, output_dir: Path, lags: int) -> None:
@@ -94,6 +94,4 @@ def _plot_acf_pacf(returns: pd.Series, output_dir: Path, lags: int) -> None:
     axes[1].set_xlabel("Lag")
     axes[1].set_ylabel("Partial Autocorrelation")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "acf_pacf.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "acf_pacf.png")

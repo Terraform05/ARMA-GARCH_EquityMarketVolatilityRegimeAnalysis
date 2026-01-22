@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from src.plotting import format_date_axis, save_fig
 
 @dataclass
 class HedgeMonitoringResults:
@@ -103,9 +104,8 @@ def _plot_hedge_ratio(
     ax.set_ylabel("Ratio")
     ax.set_xlabel("Date")
     ax.legend(loc="upper right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / "hedge_ratio.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "hedge_ratio.png")
 
 
 def _plot_vix_vs_realized(frame: pd.DataFrame, output_dir: Path) -> None:
@@ -122,6 +122,5 @@ def _plot_vix_vs_realized(frame: pd.DataFrame, output_dir: Path) -> None:
     ax.set_ylabel("Volatility (%)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper right", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / "vix_vs_realized.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / "vix_vs_realized.png")

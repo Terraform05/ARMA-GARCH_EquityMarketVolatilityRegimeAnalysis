@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.plotting import format_date_axis, save_fig
 from src.signals.trend import bucket_trend_state, compute_trend_score, confirm_states
 from src.signals.volatility import compute_vol_score, recent_regime_change
 from src.strategies.sizing import apply_rebalance, continuous_exposure, matrix_exposure
@@ -496,9 +497,8 @@ def _plot_equity_curve(
     ax.set_ylabel("Equity (Indexed)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper left", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / f"equity_curve{suffix}.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / f"equity_curve{suffix}.png")
 
 
 def _plot_equity_curve_compare(
@@ -546,9 +546,8 @@ def _plot_equity_curve_compare(
     ax.set_ylabel("Equity (Indexed)")
     ax.set_xlabel("Date")
     ax.legend(loc="upper left", frameon=False)
-    fig.tight_layout()
-    fig.savefig(output_dir / f"equity_curve_compare{suffix}.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax)
+    save_fig(fig, output_dir / f"equity_curve_compare{suffix}.png")
 
 
 def _rolling_cagr(log_returns: pd.Series, window: int) -> pd.Series:
@@ -594,9 +593,8 @@ def _plot_rolling_cagr(frame: pd.DataFrame, output_dir: Path) -> None:
         ax.set_ylabel("CAGR")
         ax.legend(loc="upper left", frameon=False)
     axes[-1].set_xlabel("Date")
-    fig.tight_layout()
-    fig.savefig(output_dir / "rolling_cagr.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(axes[-1])
+    save_fig(fig, output_dir / "rolling_cagr.png")
 
 
 def _plot_rolling_drawdown(frame: pd.DataFrame, output_dir: Path) -> None:
@@ -621,9 +619,8 @@ def _plot_rolling_drawdown(frame: pd.DataFrame, output_dir: Path) -> None:
         ax.set_ylabel("Max Drawdown")
         ax.legend(loc="lower left", frameon=False)
     axes[-1].set_xlabel("Date")
-    fig.tight_layout()
-    fig.savefig(output_dir / "rolling_drawdown.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(axes[-1])
+    save_fig(fig, output_dir / "rolling_drawdown.png")
 
 
 def _rolling_alpha_beta(
@@ -710,9 +707,8 @@ def _plot_rolling_alpha_beta(frame: pd.DataFrame, output_dir: Path) -> None:
     axes[1].legend(loc="upper left", frameon=False)
     axes[1].set_xlabel("Date")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "rolling_alpha_beta.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(axes[-1])
+    save_fig(fig, output_dir / "rolling_alpha_beta.png")
 
 
 def _plot_turnover_hist(frame: pd.DataFrame, output_dir: Path) -> None:
@@ -721,9 +717,7 @@ def _plot_turnover_hist(frame: pd.DataFrame, output_dir: Path) -> None:
     ax.set_title("Turnover Distribution")
     ax.set_xlabel("Daily Turnover (Abs Exposure Change)")
     ax.set_ylabel("Count")
-    fig.tight_layout()
-    fig.savefig(output_dir / "turnover_hist.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "turnover_hist.png")
 
 
 def _plot_cost_sensitivity(data_dir: Path, output_dir: Path) -> None:
@@ -752,9 +746,7 @@ def _plot_cost_sensitivity(data_dir: Path, output_dir: Path) -> None:
     axes[1].set_xlabel("Cost (bps per turnover)")
     axes[1].set_ylabel("Net Sharpe")
 
-    fig.tight_layout()
-    fig.savefig(output_dir / "cost_sensitivity.png", dpi=150)
-    plt.close(fig)
+    save_fig(fig, output_dir / "cost_sensitivity.png")
 
 
 def _plot_exposure_overlay(
@@ -793,9 +785,8 @@ def _plot_exposure_overlay(
     )
 
     ax_bottom.set_xlabel("Date")
-    fig.tight_layout()
-    fig.savefig(output_dir / f"exposure_overlay{suffix}.png", dpi=150)
-    plt.close(fig)
+    format_date_axis(ax_bottom)
+    save_fig(fig, output_dir / f"exposure_overlay{suffix}.png")
 
 
 def _draw_strip(

@@ -1,13 +1,13 @@
 Ljung-Box on standardized residuals:
-  statistic: 59.291608
-  p-value:   0.000009
+  statistic: 59.150689
+  p-value:   0.000010
 
 Ljung-Box on squared standardized residuals:
-  statistic: 37.217278
-  p-value:   0.011019
+  statistic: 37.104577
+  p-value:   0.011369
 
 ARCH test on standardized residuals:
-  statistic: 33.487339
-  p-value:   0.029809
+  statistic: 33.389537
+  p-value:   0.030563
 
 Lags used: 20

@@ -13,8 +13,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.config import (
     BEST_VARIANT_FILE,
     OUTPUT_CSV,
+    VARIANT_BIC_METRICS_FILE,
     VARIANT_METRICS_FILE,
     VARIANT_SELECTION,
+    RMSE_CLOSE_PCT,
+    BIC_IMPROVEMENT,
 )
 from src.garch_utils import get_best_variant
 from src.modeling import run_modeling
@@ -28,7 +31,12 @@ def run_modeling_job(
 ) -> None:
     data = pd.read_csv(input_csv, parse_dates=["date"])
     chosen_variant = variant or get_best_variant(
-        BEST_VARIANT_FILE, VARIANT_METRICS_FILE, mode=VARIANT_SELECTION
+        BEST_VARIANT_FILE,
+        VARIANT_METRICS_FILE,
+        bic_metrics_path=VARIANT_BIC_METRICS_FILE,
+        mode=VARIANT_SELECTION,
+        rmse_close_pct=RMSE_CLOSE_PCT,
+        bic_improvement=BIC_IMPROVEMENT,
     )
     run_modeling(
         data,
