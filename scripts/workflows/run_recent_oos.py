@@ -29,7 +29,7 @@ from src.validation import run_validation
 # -----------------------------
 PROJECT_NAME = "aram_last_year"
 # Separate root folder for this workflow's outputs (keeps reports/ untouched).
-OUTPUT_ROOT = PROJECT_ROOT / "oos_runs"
+OUTPUT_ROOT = PROJECT_ROOT / "runs" / "oos"
 
 # Evaluation window: last 1 year ending today by default.
 EVAL_END = None  # "YYYY-MM-DD" or None for today

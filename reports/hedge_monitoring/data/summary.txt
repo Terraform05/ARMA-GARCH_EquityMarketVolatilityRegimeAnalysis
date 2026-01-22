@@ -1,11 +1,11 @@
 Hedge-cost monitoring:
-  ratio low (quantile 0.2): 1.056
-  ratio high (quantile 0.8): 1.925
+  ratio low (quantile 0.2): 1.057
+  ratio high (quantile 0.8): 1.930
 
 Signal mix:
-  cheap: 20.00%
-  neutral: 59.99%
-  expensive: 20.00%
+  cheap: 20.01%
+  neutral: 59.98%
+  expensive: 20.01%
 
 Signal persistence (avg segment length, days):
   cheap: 4.6

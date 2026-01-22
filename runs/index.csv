@@ -1,0 +1,2 @@
+run_id,started_at_utc,ended_at_utc,status,data_end_date,objective,evaluation,drawdown_cap,cost_bps,frozen_config_path,reports_dir,notes
+run_9112f7389977,2026-01-22T19:49:39Z,2026-01-22T19:50:31Z,success,2026-01-22,sortino_net,walk_forward,-0.2,5.0,/Users/alexj/code/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/configs/active/regime_trend_best_run_9112f7389977.json,/Users/alexj/code/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/reports,

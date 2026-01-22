@@ -14,8 +14,8 @@ Model and interpret volatility regimes in equity markets by separating return dy
 
 This report summarizes a last-year out of sample run that trains on the prior year and evaluates the 2025-01-21 to 2026-01-21 window. The April 2025 tariff shock and subsequent policy reversals and fast headline shifts dominate the volatility regime, driving a sharp spike in conditional variance, a high-vol regime cluster, and a clear separation between implied and realized volatility. Rolling forecasts track the shock faster than static forecasts, while regime-based exposure cuts reduce drawdown depth at the cost of lower total return versus buy-and-hold. Event chronologies tie each key plot to the policy and macro catalysts that shaped the risk environment.
 
-Full report: [oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/oos_runs/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md)
-Comparison report (train 1y vs 5y): [oos_runs/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/oos_runs/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md)
+Full report: [runs/oos/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/runs/oos/aram_last_year/2025-01-21_to_2026-01-21/20260121_111845/README.md)
+Comparison report (train 1y vs 5y): [runs/oos/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/runs/oos/aram_last_year/2025-01-21_to_2026-01-21/README_compare_train_1y_vs_5y.md)
 
 ## Project Objective (Economic Lens)
 
@@ -155,6 +155,46 @@ This project reframes volatility as a signal of market uncertainty and regime tr
     source .venv/bin/activate
     pip install -r requirements.txt
     python scripts/run_all.py
+
+## Optimization Workflow (Regime-Trend Strategy)
+
+1) Run the walk-forward sweep and freeze the best config (Sortino, net of costs):
+
+    python scripts/run_regime_trend_optimize.py
+
+   This writes `configs/regime_trend_best.json`.
+
+2) Run the pipeline using the frozen config:
+
+    python scripts/run_all.py
+
+   If the frozen config exists, the regime-trend backtest uses it automatically.
+
+## Repository Layout
+
+- `configs/`: run configs and experiment settings.
+- `configs/active/`: snapshot of the config used by the most recent full run.
+- `data/`: raw/processed/interim datasets.
+- `docs/`: pipeline notes in `docs/pipeline/`, readable summaries in `docs/readmes/`.
+- `reports/`: curated outputs and plots.
+- `runs/`: timestamped, self-contained execution outputs (e.g., `runs/oos/`).
+- `scripts/`: thin CLI wrappers that call `src/`.
+- `src/`: reusable modeling/analysis modules.
+- `src/signals/`: signal components used by strategies.
+- `src/strategies/`: strategy implementations and sizing logic.
+- `strategy/`: strategy documentation and design notes.
+- `tests/`: unit/integration tests.
+- `tools/`: maintenance and validation helpers.
+
+## Reports vs Runs
+
+- `reports/` contains curated outputs meant for reading and comparison over time.
+- `runs/` contains timestamped, self-contained execution outputs for audits and reproducibility.
+
+## Run Registry
+
+`runs/index.csv` tracks each `run_all` execution with timestamps, data end date,
+objective, and the frozen config snapshot used (if any).
 
 ## Dependencies
 
@@ -354,72 +394,72 @@ Plot notes:
 - Equity curve (full sample): expect lower terminal value but materially smaller drawdowns vs buy-and-hold.
 - Exposure overlay (full sample): long red blocks should align with reduced exposure plateaus.
 
-10) **Layered strategy (regime + trend) backtest**  
-   The layered strategy combines volatility regimes with a 21‑day trend signal. The sweep winner uses an aggressive exposure map and daily rebalancing. It achieves annual return 0.1825, annual vol 0.0951, Sharpe 1.9205, and max drawdown -0.0903, versus buy‑and‑hold at 0.1128 return, 0.1738 vol, and -0.3392 drawdown.  
-   Trend‑only baseline returns 0.1908 with vol 0.1090 and max drawdown -0.1527, so layered trades a bit of return for much smoother risk.  
-   Interpretation: the trend layer adds return while regimes cap risk, producing both higher CAGR and lower drawdown in this sample. See [reports/strategy_layered/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md) for full comparisons and diagnostics.
+10) **Regime-Trend strategy (regime + trend) backtest**  
+   The regime-trend strategy combines volatility regimes with a 21‑day trend signal. The sweep winner uses an aggressive exposure map and daily rebalancing. It achieves annual return 0.1825, annual vol 0.0951, Sharpe 1.9205, and max drawdown -0.0903, versus buy‑and‑hold at 0.1128 return, 0.1738 vol, and -0.3392 drawdown.  
+   Trend‑only baseline returns 0.1908 with vol 0.1090 and max drawdown -0.1527, so regime-trend trades a bit of return for much smoother risk.  
+   Interpretation: the trend layer adds return while regimes cap risk, producing both higher CAGR and lower drawdown in this sample. See [reports/strategy_regime_trend/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_regime_trend/README.md) for full comparisons and diagnostics.
 
 Key short‑horizon visuals (last 12 months, rebased to the same start):
 - Black line: buy‑and‑hold equity curve.
-- Slate‑blue line: layered strategy equity curve.
+- Slate‑blue line: regime-trend strategy equity curve.
 - Trend strip colors: green = strong up, gray = neutral, red = strong down.
 - Regime strip colors: green = low, amber = mid, red = high volatility.
 
-![Layered strategy equity curve (last year)](reports/strategy_layered/plots/equity_curve_last_year.png)
+![Regime-Trend strategy equity curve (last year)](reports/strategy_regime_trend/plots/equity_curve_last_year.png)
 
 The exposure overlay shows how trend and regime signals combine to set exposure.
 
-![Layered exposure overlay (last year)](reports/strategy_layered/plots/exposure_overlay_last_year.png)
+![Regime-Trend exposure overlay (last year)](reports/strategy_regime_trend/plots/exposure_overlay_last_year.png)
 
 Plot notes:
-- Equity curve (last year): layered should recover faster than buy-and-hold if trend re-risking is working.
+- Equity curve (last year): regime-trend should recover faster than buy-and-hold if trend re-risking is working.
 - Exposure overlay (last year): exposure reacts to both trend shifts and regime changes, not just volatility.
 
 Full‑sample views for context:
 
-![Layered strategy equity curve](reports/strategy_layered/plots/equity_curve.png)
+![Regime-Trend strategy equity curve](reports/strategy_regime_trend/plots/equity_curve.png)
 
-![Layered exposure overlay](reports/strategy_layered/plots/exposure_overlay.png)
+![Regime-Trend exposure overlay](reports/strategy_regime_trend/plots/exposure_overlay.png)
 
 Plot notes:
-- Equity curve (full sample): layered should compound faster while keeping drawdowns shallower.
+- Equity curve (full sample): regime-trend should compound faster while keeping drawdowns shallower.
 - Exposure overlay (full sample): green trend regimes with low vol should map to higher exposure.
 
-11) **Layered diagnostics and alpha/beta**  
-   Rolling diagnostics confirm the layered edge is persistent, not a one‑off spike: 1Y/3Y rolling CAGR stays above the benchmark for most of the sample, and rolling max drawdown remains materially lower than buy‑and‑hold. The comparison plot includes trend‑only and regime‑only baselines to isolate incremental value. Alpha/beta computed on simple returns show annualized alpha 0.1290 (net 0.1191 at 5 bps) with beta ~0.45, meaning the strategy delivers excess return with lower market exposure.  
+11) **Regime-Trend diagnostics and alpha/beta**  
+   Rolling diagnostics confirm the regime-trend edge is persistent, not a one‑off spike: 1Y/3Y rolling CAGR stays above the benchmark for most of the sample, and rolling max drawdown remains materially lower than buy‑and‑hold. The comparison plot includes trend‑only and regime‑only baselines to isolate incremental value. Alpha/beta computed on simple returns show annualized alpha 0.1290 (net 0.1191 at 5 bps) with beta ~0.45, meaning the strategy delivers excess return with lower market exposure.  
    Turnover is moderate (avg daily turnover 0.0788, annualized 19.86), with an estimated annual cost drag of ~0.0099 at 5 bps. The cost sensitivity plot shows a roughly linear decline in net return as costs rise.
 
 Key diagnostics (full sample):
 
-![Layered vs trend-only vs regime vs benchmark](reports/strategy_layered/plots/equity_curve_compare.png)
-![Rolling CAGR](reports/strategy_layered/plots/rolling_cagr.png)
-![Rolling drawdown](reports/strategy_layered/plots/rolling_drawdown.png)
-![Rolling alpha/beta](reports/strategy_layered/plots/rolling_alpha_beta.png)
-![Turnover distribution](reports/strategy_layered/plots/turnover_hist.png)
-![Cost sensitivity](reports/strategy_layered/plots/cost_sensitivity.png)
+![Regime-Trend vs trend-only vs regime vs benchmark](reports/strategy_regime_trend/plots/equity_curve_compare.png)
+![Rolling CAGR](reports/strategy_regime_trend/plots/rolling_cagr.png)
+![Rolling drawdown](reports/strategy_regime_trend/plots/rolling_drawdown.png)
+![Rolling alpha/beta](reports/strategy_regime_trend/plots/rolling_alpha_beta.png)
+![Turnover distribution](reports/strategy_regime_trend/plots/turnover_hist.png)
+![Cost sensitivity](reports/strategy_regime_trend/plots/cost_sensitivity.png)
 
 Plot notes:
-- Equity curve comparison: trend-only usually tops returns; layered trades some return for smoother risk.
-- Rolling CAGR: layered stays above benchmark in most windows; trend-only is higher but noisier.
-- Rolling drawdown: layered drawdowns are consistently shallower than benchmark and trend-only.
-- Rolling alpha/beta: layered alpha is positive for long stretches while beta stays below 1.0.
+- Equity curve comparison: trend-only usually tops returns; regime-trend trades some return for smoother risk.
+- Rolling CAGR: regime-trend stays above benchmark in most windows; trend-only is higher but noisier.
+- Rolling drawdown: regime-trend drawdowns are consistently shallower than benchmark and trend-only.
+- Rolling alpha/beta: regime-trend alpha is positive for long stretches while beta stays below 1.0.
 - Turnover distribution: most days show low turnover with occasional spikes during regime or trend flips.
 - Cost sensitivity: net return and Sharpe decline roughly linearly with higher cost bps.
 
 12) **GBM forward test (synthetic paths)**  
-   Forward simulations using geometric Brownian motion provide a rough sanity check across 1Y/3Y/5Y horizons. The layered strategy, regime‑only baseline, and buy‑and‑hold are all evaluated on identical simulated paths. This is not a realistic regime model, but it helps test robustness under a simple stochastic assumption.  
-   See [reports/strategy_layered_gbm/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered_gbm/README.md) for distributions and outperformance rates.
+   Forward simulations using geometric Brownian motion provide a rough sanity check across 1Y/3Y/5Y horizons. The regime-trend strategy, regime‑only baseline, and buy‑and‑hold are all evaluated on identical simulated paths. This is not a realistic regime model, but it helps test robustness under a simple stochastic assumption.  
+   See [reports/strategy_regime_trend_gbm/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_regime_trend_gbm/README.md) for distributions and outperformance rates.
 
 GBM diagnostics (synthetic):
 
-![GBM annual return distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_return_dist_1y.png)
-![GBM max drawdown distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_drawdown_dist_1y.png)
-![GBM alpha distribution (1Y)](reports/strategy_layered_gbm/plots/gbm_alpha_dist_1y.png)
-![GBM outperformance (1Y)](reports/strategy_layered_gbm/plots/gbm_outperformance_1y.png)
+![GBM annual return distribution (1Y)](reports/strategy_regime_trend_gbm/plots/gbm_return_dist_1y.png)
+![GBM max drawdown distribution (1Y)](reports/strategy_regime_trend_gbm/plots/gbm_drawdown_dist_1y.png)
+![GBM alpha distribution (1Y)](reports/strategy_regime_trend_gbm/plots/gbm_alpha_dist_1y.png)
+![GBM outperformance (1Y)](reports/strategy_regime_trend_gbm/plots/gbm_outperformance_1y.png)
 
 Plot notes:
-- Return distribution: a right shift for layered vs benchmark implies higher outperformance odds under GBM.
-- Drawdown distribution: layered should cluster toward smaller drawdowns if exposure control helps.
+- Return distribution: a right shift for regime-trend vs benchmark implies higher outperformance odds under GBM.
+- Drawdown distribution: regime-trend should cluster toward smaller drawdowns if exposure control helps.
 - Alpha distribution: mass above zero indicates positive alpha frequency in simulated paths.
 - Outperformance: values above 0.5 indicate more than half the paths beat the benchmark.
 
@@ -438,19 +478,19 @@ Plot notes:
 
 ## Documentation
 
-- [Data preparation](docs/01_data_prep.md)
-- [Preliminary diagnostics](docs/02_diagnostics.md)
-- [ARMA + GARCH modeling](docs/03_modeling.md)
-- [Model validation](docs/04_validation.md)
-- [Regime interpretation](docs/05_regime_analysis.md)
-- [Out-of-sample check](docs/06_oos_check.md)
+- [Data preparation](docs/pipeline/01_data_prep.md)
+- [Preliminary diagnostics](docs/pipeline/02_diagnostics.md)
+- [ARMA + GARCH modeling](docs/pipeline/03_modeling.md)
+- [Model validation](docs/pipeline/04_validation.md)
+- [Regime interpretation](docs/pipeline/05_regime_analysis.md)
+- [Out-of-sample check](docs/pipeline/06_oos_check.md)
 - [Executive summary](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/summary.md)
 - [Insights report](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/insights.md)
 - [Modeling variants](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/modeling_variants/README.md)
 - [Hedge cost monitoring](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
 - [Regime strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
-- [Layered strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md)
-- [Layered strategy GBM forward test](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered_gbm/README.md)
+- [Regime-Trend strategy backtest](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_regime_trend/README.md)
+- [Regime-Trend strategy GBM forward test](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_regime_trend_gbm/README.md)
 - [Hedge + strategy overview](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)
 
 ## Run All
@@ -469,6 +509,6 @@ Plot notes:
 - [reports/insights.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/insights.md)
 - [reports/hedge_monitoring/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_monitoring/README.md)
 - [reports/strategy_backtest/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_backtest/README.md)
-- [reports/strategy_layered/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered/README.md)
-- [reports/strategy_layered_gbm/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_layered_gbm/README.md)
+- [reports/strategy_regime_trend/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_regime_trend/README.md)
+- [reports/strategy_regime_trend_gbm/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/strategy_regime_trend_gbm/README.md)
 - [reports/hedge_strategy/README.md](https://github.com/Terraform05/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/blob/main/reports/hedge_strategy/README.md)

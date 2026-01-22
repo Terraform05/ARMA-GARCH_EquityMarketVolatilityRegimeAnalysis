@@ -1,9 +1,9 @@
 ADF test on log_return:
-  statistic: -13.733800
+  statistic: -13.751593
   p-value:   0.000000
 
 ARCH test on log_return:
-  statistic: 1270.026392
+  statistic: 1274.280597
   p-value:   0.000000
 
 Lags used: 20

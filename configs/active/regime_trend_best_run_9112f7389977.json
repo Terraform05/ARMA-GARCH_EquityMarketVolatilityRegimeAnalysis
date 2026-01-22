@@ -1,0 +1,77 @@
+{
+  "selected_at": "2026-01-22",
+  "strategy": "regime_trend",
+  "objective": "sortino_net",
+  "evaluation": "walk_forward",
+  "drawdown_cap": -0.2,
+  "cost_bps": 5.0,
+  "walk_forward": {
+    "train_years": 8,
+    "val_years": 2,
+    "test_years": 2,
+    "step_years": 2
+  },
+  "hyperparams": {
+    "trend_window": 21,
+    "trend_threshold": 0.35,
+    "rebalance": "daily",
+    "state_confirm": 1,
+    "matrix_name": "default",
+    "sizing_mode": "matrix",
+    "trend_z_window": 126,
+    "vol_z_window": 252,
+    "base_exposure": 0.6,
+    "trend_coef": 0.25,
+    "vol_coef": 0.25,
+    "min_exposure": 0.0,
+    "max_exposure": null,
+    "transition_window": 0,
+    "transition_multiplier": 1.0,
+    "exposure_matrix": {
+      "low": {
+        "strong_up": 1.1,
+        "neutral": 0.8,
+        "strong_down": 0.5
+      },
+      "mid": {
+        "strong_up": 0.9,
+        "neutral": 0.6,
+        "strong_down": 0.3
+      },
+      "high": {
+        "strong_up": 0.7,
+        "neutral": 0.4,
+        "strong_down": 0.1
+      }
+    }
+  },
+  "selection_metrics": {
+    "trend_window": 21,
+    "trend_threshold": 0.35,
+    "rebalance": "daily",
+    "state_confirm": 1,
+    "matrix_name": "default",
+    "sizing_mode": "matrix",
+    "cost_bps": 5.0,
+    "fold_count": 4,
+    "train_return_mean": 0.1531152777441586,
+    "train_sharpe_mean": 2.0405314053679997,
+    "train_sortino_mean": 3.0097380722294815,
+    "train_max_drawdown_worst": -0.0767169612427786,
+    "train_benchmark_return_mean": 0.115142976410295,
+    "val_return_mean": 0.1690448570327184,
+    "val_sharpe_mean": 2.085105552896684,
+    "val_sortino_mean": 3.054753422149438,
+    "val_max_drawdown_worst": -0.059196630462975,
+    "val_benchmark_return_mean": 0.113892312465272,
+    "val_benchmark_max_drawdown_worst": -0.3392496000265325,
+    "val_pass_dd": true,
+    "test_return_mean": 0.1489827110558794,
+    "test_sharpe_mean": 1.701749512262002,
+    "test_sortino_mean": 2.389073949763305,
+    "test_max_drawdown_worst": -0.0531801728208842,
+    "test_benchmark_return_mean": 0.0477608854706881,
+    "test_benchmark_max_drawdown_worst": -0.3392496000265325
+  },
+  "sweep_results_path": "/Users/alexj/code/ARMA-GARCH_EquityMarketVolatilityRegimeAnalysis/reports/strategy_regime_trend_sweep/data/sweep_results.csv"
+}

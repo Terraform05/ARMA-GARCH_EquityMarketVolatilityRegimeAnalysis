@@ -1,0 +1,66 @@
+Regime-Trend strategy backtest:
+  annual return: 0.1656
+  annual vol: 0.0798
+  sharpe: 2.0741
+  max drawdown: -0.0748
+  alpha (annual): 0.1232
+  beta: 0.3566
+
+Regime-Trend strategy (net of costs):
+  annual return: 0.1560
+  annual vol: 0.0798
+  sharpe: 1.9551
+  max drawdown: -0.0767
+  alpha (annual): 0.1136
+  beta: 0.3567
+
+Regime-only strategy:
+  alpha (annual): 0.0114
+  beta: 0.4201
+
+Trend-only strategy:
+  annual return: 0.1743
+  annual vol: 0.0923
+  sharpe: 1.8891
+  max drawdown: -0.1179
+  alpha (annual): 0.1174
+  beta: 0.4784
+  exposure map: {'strong_up': 0.9, 'neutral': 0.6, 'strong_down': 0.3}
+
+Benchmark (buy-and-hold):
+  annual return: 0.1130
+  annual vol: 0.1737
+  sharpe: 0.6508
+  max drawdown: -0.3392
+
+  excess return: 0.0526
+  excess return (net): 0.0430
+
+Turnover and costs:
+  cost_bps_per_turnover: 5.00
+  avg_turnover: 0.0759
+  annualized_turnover: 19.12
+  annual_cost_drag: 0.0096
+
+Directional signal:
+  trend_window: 21
+  trend_z_window: 126
+  trend_threshold: 0.35
+  state_confirm: 1
+
+Sizing:
+  sizing_mode: matrix
+  base_exposure: 0.60
+  trend_coef: 0.25
+  vol_coef: 0.25
+  vol_z_window: 252
+  min_exposure: 0.00
+  max_exposure: None
+  rebalance: daily
+  transition_window: 0
+  transition_multiplier: 1.00
+
+Exposure matrix:
+  low: {'strong_up': 1.1, 'neutral': 0.8, 'strong_down': 0.5}
+  mid: {'strong_up': 0.9, 'neutral': 0.6, 'strong_down': 0.3}
+  high: {'strong_up': 0.7, 'neutral': 0.4, 'strong_down': 0.1}

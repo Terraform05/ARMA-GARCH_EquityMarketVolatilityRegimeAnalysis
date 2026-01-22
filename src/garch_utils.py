@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 from arch import arch_model
 
 
+DistName = Literal["normal", "gaussian", "t", "studentst", "skewstudent", "skewt", "ged", "generalized error"]
+
+
 def fit_garch_variant(resid: pd.Series, variant: str):
-    dist = "t" if variant.endswith("_t") else "normal"
+    dist: DistName = "t" if variant.endswith("_t") else "normal"
     base = variant.replace("_t", "")
 
     if base == "GARCH":

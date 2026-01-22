@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -7,7 +8,8 @@ RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
 START_DATE = "2010-01-01"
-END_DATE = "2026-01-01"
+# Default to the most recent calendar day; data fetch will align to last trading day.
+END_DATE = date.today().isoformat()
 
 SPX_TICKER = "^GSPC"
 VIX_TICKER = "^VIX"

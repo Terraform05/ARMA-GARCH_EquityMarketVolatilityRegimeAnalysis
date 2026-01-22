@@ -1,14 +1,14 @@
 Out-of-sample check:
   split date: 2024-01-01
   train rows: 3,521
-  test rows:  502
+  test rows:  516
   ARMA order: (2, 0)
 
 OOS metrics (static forecast vs realized):
-  corr:  0.1696
-  rmse:  8.2674
+  corr:  0.1610
+  rmse:  8.2615
   available: True
 
 OOS metrics (rolling 1-step vs realized):
-  corr:  0.9193
-  rmse:  3.2394
+  corr:  0.9196
+  rmse:  3.2105
