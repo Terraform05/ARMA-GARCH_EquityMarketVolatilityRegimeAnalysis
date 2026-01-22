@@ -159,18 +159,6 @@ Plain-English takeaway:
 - **The strategy is not just "more market." It earns extra return while
   taking less market exposure than buy-and-hold.**
 
-## What This Is (And Is Not)
-
-This is:
-- A backtest using historical data.
-- A rules-based exposure framework with no discretionary trades.
-- A way to compare risk control and return across strategies.
-
-This is not:
-- A guarantee of future performance.
-- A full trading system with real-world costs, taxes, or execution limits.
-- A replacement for proper out-of-sample and walk-forward testing.
-
 ## If You Only Read One Thing
 
 **The layered strategy (trend + regime) is the best balance in this sample:**
